@@ -1,12 +1,16 @@
 using System;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace E.Rendering
 {
     /// <summary>
-    /// [Serializable, VolumeComponentMenu("Custom/Volume Name")]
+    /// Base class of render pass,
+    /// use VolumeComponentMenu attribute to configure menu in Volume Component like
+    /// [VolumeComponentMenu("Custom/Volume Name")]
     /// </summary>
+    [Serializable]
     public abstract partial class CustomRenderPassComponent : VolumeComponent, IPostProcessComponent, IDisposable
     {
         protected abstract CustomRenderPassComponentData Data { get; }
@@ -25,6 +29,11 @@ namespace E.Rendering
         /// Require input texture
         /// </summary>
         public ScriptableRenderPassInput PassInput { get { return Data.passInput; } }
+
+        /// <summary>
+        /// Is this component a post-processing?
+        /// </summary>
+        public bool IsPostProcessing { get { return Data.isPostProcessing; } }
 
         /// <summary>
         /// ScriptableRenderPass of this component
@@ -53,6 +62,11 @@ namespace E.Rendering
         /// Current target color texture of this pass, use this.Blit()
         /// </summary>
         protected RenderTargetIdentifier ColorTarget { get { return Pass.currentTargetID; } }
+
+        /// <summary>
+        /// Current camera of this pass
+        /// </summary>
+        protected Camera CurrentCamera { get { return Pass.camera; } }
 
         internal void Initialize(in CustomRenderPass pass)
         {

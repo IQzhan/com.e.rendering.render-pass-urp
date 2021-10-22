@@ -18,5 +18,6 @@
   ],
   "author": {
     "name": "ZhanQI"
-  }
+  },
+  "hideInEditor": false
 }

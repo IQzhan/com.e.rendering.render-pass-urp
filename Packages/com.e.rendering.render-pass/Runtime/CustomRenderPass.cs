@@ -26,6 +26,7 @@ namespace E.Rendering
 
         internal CommandBuffer command;
         internal ScriptableRenderContext context;
+        internal Camera camera;
 
         internal CustomRenderPass
             (in string profilerTag, in RenderPassEvent renderPassEvent, in ScriptableRenderPassInput passInput, in List<CustomRenderPassComponent> volumeComponents)
@@ -60,12 +61,15 @@ namespace E.Rendering
             m_InsideProfilingSampler = new ProfilingSampler(string.Empty);
         }
 
-        internal bool CheckActiveComponents()
+        internal bool CheckActiveComponents(bool postProcessEnabled)
         {
             m_ActiveComponents.Clear();
             for (int i = 0; i < m_VolumeComponents.Count; i++)
             {
-                if (m_VolumeComponents[i].IsActive())
+                CustomRenderPassComponent component = m_VolumeComponents[i];
+                if(((component.IsPostProcessing && postProcessEnabled)
+                    || !component.IsPostProcessing)
+                    && component.IsActive())
                 {
                     m_ActiveComponents.Add(i);
                 }
@@ -139,6 +143,16 @@ namespace E.Rendering
             command = null;
         }
 
+        private void ConfigureRenderContext(in ScriptableRenderContext context)
+        {
+            this.context = context;
+        }
+
+        private void ConfigureCamera(in Camera camera)
+        {
+            this.camera = camera;
+        }
+
         private void InitializeRenderTextures(in CommandBuffer cmd, ref RenderingData renderingData)
         {
             RenderTextureDescriptor descriptor = renderingData.cameraData.cameraTargetDescriptor;
@@ -161,7 +175,8 @@ namespace E.Rendering
         private void RenderComponents(in ScriptableRenderContext context,
             ref RenderingData renderingData, in CommandBuffer cmd)
         {
-            this.context = context;
+            ConfigureRenderContext(context);
+            ConfigureCamera(renderingData.cameraData.camera);
             m_CurrActiveComponentIndex = -1;
             for (int i = 0; i < m_ActiveComponents.Count; i++)
             {

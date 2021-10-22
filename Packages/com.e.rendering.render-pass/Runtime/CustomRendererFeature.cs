@@ -75,19 +75,18 @@ namespace E.Rendering
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (renderingData.cameraData.postProcessEnabled)
+            //TODO if (!camera.customRenderPassEnabled) return;
+            bool postProcessEnabled = renderingData.cameraData.postProcessEnabled;
+            RenderTargetHandle colorTarget = new RenderTargetHandle(renderer.cameraColorTarget);
+            for (int i = 0; i < m_RenderPasses.Count; i++)
             {
-                RenderTargetHandle colorTarget = new RenderTargetHandle(renderer.cameraColorTarget);
-                for (int i = 0; i < m_RenderPasses.Count; i++)
+                CustomRenderPass renderPass = m_RenderPasses[i];
+                if (renderPass.CheckActiveComponents(postProcessEnabled))
                 {
-                    CustomRenderPass renderPass = m_RenderPasses[i];
-                    if (renderPass.CheckActiveComponents())
-                    {
-                        if (renderPass.renderPassEvent == RenderPassEvent.AfterRendering)
-                        { colorTarget = m_AfterPostProcessTexture; }
-                        renderPass.Setup(colorTarget, m_TempColorTarget);
-                        renderer.EnqueuePass(renderPass);
-                    }
+                    if (renderPass.renderPassEvent == RenderPassEvent.AfterRendering)
+                    { colorTarget = m_AfterPostProcessTexture; }
+                    renderPass.Setup(colorTarget, m_TempColorTarget);
+                    renderer.EnqueuePass(renderPass);
                 }
             }
         }

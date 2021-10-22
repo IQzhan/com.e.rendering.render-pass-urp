@@ -4,22 +4,21 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using E.Rendering;
 
-#NAMESPACE_START#
-[VolumeComponentMenu("#COMPONENT_MENU_PATH#")]
-public class #PASS_NAME# : CustomRenderPassComponent
+[VolumeComponentMenu("Custom/CaptureCamera")]
+public class CaptureCamera : CustomRenderPassComponent
 {
     // Resources data
-    protected override CustomRenderPassComponentData Data => #PASS_NAME#Data.Instance;
+    protected override CustomRenderPassComponentData Data => CaptureCameraData.Instance;
 
     // Parameters here like
-    // public ClampedIntParameter size = new ClampedIntParameter(0, 0, 10);
+    public ClampedIntParameter size = new ClampedIntParameter(0, 0, 10);
 
     // private Material material;
 
     protected override void Initialize()
     {
-        // if (material == null && #PASS_NAME#Data.Instance.shader != null)
-        //     material = CoreUtils.CreateEngineMaterial(#PASS_NAME#Data.Instance);        
+        // if (material == null && CaptureCameraData.Instance.shader != null)
+        //     material = CoreUtils.CreateEngineMaterial(CaptureCameraData.Instance);        
     }
     
     public override bool IsTileCompatible()
@@ -30,7 +29,7 @@ public class #PASS_NAME# : CustomRenderPassComponent
     public override bool IsActive()
     {
         //return size.Value > 0 && material != null;
-        return false;
+        return size.value > 0;
     }
 
     public override void OnCameraSetup(ref RenderingData renderingData)
@@ -60,4 +59,3 @@ public class #PASS_NAME# : CustomRenderPassComponent
         
     }
 }
-#NAMESPACE_END#

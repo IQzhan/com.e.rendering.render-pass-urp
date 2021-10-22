@@ -11,6 +11,8 @@ namespace E.Rendering
         public int order = 0;
 
         public ScriptableRenderPassInput passInput = ScriptableRenderPassInput.None;
+
+        public bool isPostProcessing = false;
     }
 
     public abstract class CustomRenderPassComponentData<T> : CustomRenderPassComponentData
