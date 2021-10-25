@@ -41,6 +41,7 @@ public class CaptureCamera : CustomRenderPassComponent
     {
         // CommandBuffer cmd = Command;
         // ScriptableRenderContext context = Context;
+        Debug.Log(nameof(CaptureCamera));
     }
 
     public override void OnCameraCleanup()

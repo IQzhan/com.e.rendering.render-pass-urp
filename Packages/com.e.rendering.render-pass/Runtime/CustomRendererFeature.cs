@@ -75,7 +75,7 @@ namespace E.Rendering
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            //TODO if (!camera.customRenderPassEnabled) return;
+            //TODO if(is scene camera && is )
             bool postProcessEnabled = renderingData.cameraData.postProcessEnabled;
             RenderTargetHandle colorTarget = new RenderTargetHandle(renderer.cameraColorTarget);
             for (int i = 0; i < m_RenderPasses.Count; i++)

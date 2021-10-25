@@ -241,7 +241,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1046695588}
   - component: {fileID: 1046695587}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Global Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -383,7 +383,7 @@ MonoBehaviour:
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 64
   m_VolumeTrigger: {fileID: 0}
   m_RenderPostProcessing: 1
   m_Antialiasing: 0

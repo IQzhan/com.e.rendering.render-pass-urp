@@ -103,8 +103,8 @@ MonoBehaviour:
   active: 1
   m_AdvancedMode: 0
   size:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 2
     min: 0
     max: 10
 --- !u!114 &11400000
