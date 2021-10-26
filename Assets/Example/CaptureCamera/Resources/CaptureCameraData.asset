@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4575f11273aceb04dbec54a99c209b09, type: 3}
   m_Name: CaptureCameraData
   m_EditorClassIdentifier: 
-  renderPassEvent: 500
+  renderPassEvent: 0
   order: 0
   passInput: 0
   isPostProcessing: 0

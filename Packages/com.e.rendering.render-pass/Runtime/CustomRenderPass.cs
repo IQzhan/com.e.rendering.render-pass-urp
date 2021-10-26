@@ -61,14 +61,14 @@ namespace E.Rendering
             m_InsideProfilingSampler = new ProfilingSampler(string.Empty);
         }
 
-        internal bool CheckActiveComponents(bool postProcessEnabled)
+        internal bool CheckActiveComponents(in bool nonPostProcessEnabled, in bool postProcessEnabled)
         {
             m_ActiveComponents.Clear();
             for (int i = 0; i < m_VolumeComponents.Count; i++)
             {
                 CustomRenderPassComponent component = m_VolumeComponents[i];
-                if(((component.IsPostProcessing && postProcessEnabled)
-                    || !component.IsPostProcessing)
+                if (((!component.IsPostProcessing && nonPostProcessEnabled) ||
+                    (component.IsPostProcessing && postProcessEnabled))
                     && component.IsActive())
                 {
                     m_ActiveComponents.Add(i);

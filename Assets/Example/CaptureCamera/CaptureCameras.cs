@@ -4,21 +4,14 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using E.Rendering;
 
-[VolumeComponentMenu("Custom/CaptureCamera")]
-public class CaptureCamera : CustomRenderPassComponent
+[VolumeComponentMenu("Render Pass/Capture Cameras")]
+public class CaptureCameras : CustomRenderPassComponent
 {
-    // Resources data
     protected override CustomRenderPassComponentData Data => CaptureCameraData.Instance;
-
-    // Parameters here like
-    public ClampedIntParameter size = new ClampedIntParameter(0, 0, 10);
-
-    // private Material material;
 
     protected override void Initialize()
     {
-        // if (material == null && CaptureCameraData.Instance.shader != null)
-        //     material = CoreUtils.CreateEngineMaterial(CaptureCameraData.Instance);        
+        
     }
     
     public override bool IsTileCompatible()
@@ -28,8 +21,7 @@ public class CaptureCamera : CustomRenderPassComponent
 
     public override bool IsActive()
     {
-        //return size.Value > 0 && material != null;
-        return size.value > 0;
+        return true;
     }
 
     public override void OnCameraSetup(ref RenderingData renderingData)
@@ -41,7 +33,7 @@ public class CaptureCamera : CustomRenderPassComponent
     {
         // CommandBuffer cmd = Command;
         // ScriptableRenderContext context = Context;
-        Debug.Log(nameof(CaptureCamera));
+
     }
 
     public override void OnCameraCleanup()
@@ -51,8 +43,7 @@ public class CaptureCamera : CustomRenderPassComponent
 
     protected override void DisposeUnmanaged()
     {
-        // if (material != null)
-        //     CoreUtils.Destroy(material);
+
     }
 
     protected override void DisposedManaged()

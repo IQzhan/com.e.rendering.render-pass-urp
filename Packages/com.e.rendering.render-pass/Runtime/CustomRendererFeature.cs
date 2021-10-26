@@ -7,6 +7,8 @@ namespace E.Rendering
 {
     public class CustomRendererFeature : ScriptableRendererFeature
     {
+        public bool nonPostProcessEnabledInSceneCamera = true;
+
         private List<CustomRenderPass> m_RenderPasses;
 
         private List<CustomRenderPassComponent> m_Components;
@@ -75,13 +77,21 @@ namespace E.Rendering
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            //TODO if(is scene camera && is )
+            int count = m_RenderPasses.Count;
+            if (count == 0) return;
+#if UNITY_EDITOR
+            bool isSceneCamera = renderingData.cameraData.cameraType == UnityEngine.CameraType.SceneView;
+            bool nonPostProcessEnabled = (isSceneCamera && nonPostProcessEnabledInSceneCamera) || !isSceneCamera;
+#else
+            bool nonPostProcessEnabled = true;
+#endif
             bool postProcessEnabled = renderingData.cameraData.postProcessEnabled;
+            if (!nonPostProcessEnabled && !postProcessEnabled) return;
             RenderTargetHandle colorTarget = new RenderTargetHandle(renderer.cameraColorTarget);
-            for (int i = 0; i < m_RenderPasses.Count; i++)
+            for (int i = 0; i < count; i++)
             {
                 CustomRenderPass renderPass = m_RenderPasses[i];
-                if (renderPass.CheckActiveComponents(postProcessEnabled))
+                if (renderPass.CheckActiveComponents(nonPostProcessEnabled, postProcessEnabled))
                 {
                     if (renderPass.renderPassEvent == RenderPassEvent.AfterRendering)
                     { colorTarget = m_AfterPostProcessTexture; }
