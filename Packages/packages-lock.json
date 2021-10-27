@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.e.collections": {
+      "version": "git://github.com/IQzhan/Collections_Of_Unity_NativeArray.git#upm",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "e60d8b034639077b6f4b88ea89336bd0982bbab9"
+    },
     "com.e.rendering.render-pass": {
       "version": "file:com.e.rendering.render-pass",
       "depth": 0,
@@ -145,7 +152,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.timeline": {
-      "version": "1.5.6",
+      "version": "1.5.7",
       "depth": 0,
       "source": "registry",
       "dependencies": {

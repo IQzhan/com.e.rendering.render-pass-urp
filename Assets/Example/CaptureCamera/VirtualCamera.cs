@@ -1,77 +1,58 @@
+using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace E.Rendering
 {
-    public struct VirtualCameraPlane
+    public struct CameraPlane
     {
-        public VirtualCameraPlane(in VirtualCamera camera, in float distance)
+        public CameraPlane(in VirtualCamera camera, in float distance)
         {
             this.distance = distance;
-            p0 = p1 = p2 = p3 = Vector3.zero;
+            float yn, yp, xn, xp;
+            yn = -camera.bottom;
+            yp = camera.top;
+            xn = -camera.left;
+            xp = camera.right;
+            if (!camera.isOrthographic)
+            {
+                float dn = distance / camera.near;
+                yn *= dn;
+                yp *= dn;
+                xn *= dn;
+                xp *= dn;
+            }
+            Matrix4x4 mat = camera.worldToViewMatrix.inverse;
+            bottomLeft = mat * new Vector3(xn, yn, -distance);
+            topLeft = mat * new Vector3(xn, yp, -distance);
+            topRight = mat * new Vector3(xp, yp, -distance);
+            bottomRight = mat * new Vector3(xp, yn, -distance);
         }
 
         public float distance;
 
-        public Vector3 p0;
+        public Vector3 bottomLeft;
 
-        public Vector3 p1;
+        public Vector3 topLeft;
 
-        public Vector3 p2;
+        public Vector3 topRight;
 
-        public Vector3 p3;
+        public Vector3 bottomRight;
     }
 
-    [System.Serializable]
-    public struct VirtualCamera
+    [Serializable]
+    public class VirtualCamera : IDisposable
     {
-        public VirtualCamera(
-            in Vector3 position,
-            in Quaternion rotation,
-            in bool isOrthographic,
-            in float size, in float fov, in float aspect,
-            in float near, in float far)
-        {
-            m_isDirt = true;
-            m_Position = position;
-            m_Rotation = rotation;
-            m_IsOffCenter = false;
-            m_IsOrthographic = isOrthographic;
-            m_Size = size;
-            m_Fov = fov;
-            m_Aspect = aspect;
-            m_Near = near;
-            m_Far = far;
-            m_Left = m_Right = m_Bottom = m_Top = MIN_VALUE;
-        }
-
-        public VirtualCamera(
-            in Vector3 position,
-            in Quaternion rotation,
-            in bool isOrthographic,
-            in float left, in float right, in float bottom, in float top,
-            in float near, in float far)
-        {
-            m_isDirt = true;
-            m_Position = position;
-            m_Rotation = rotation;
-            m_IsOffCenter = true;
-            m_IsOrthographic = isOrthographic;
-            m_Near = near;
-            m_Far = far;
-            m_Left = left;
-            m_Right = right;
-            m_Bottom = bottom;
-            m_Top = top;
-            m_Size = m_Fov = m_Aspect = MIN_VALUE;
-        }
-
         private const float MIN_VALUE = 0.01f;
 
         private const float MIN_FOV = 0.01f;
 
         private const float MAX_FOV = 179.99f;
 
-        internal bool m_isDirt;
+        [SerializeField]
+        public bool IsCreated { get; private set; }
+
+        private bool m_isDirt;
 
         [SerializeField]
         private Vector3 m_Position;
@@ -112,13 +93,91 @@ namespace E.Rendering
         [SerializeField]
         private float m_Far;
 
+        [SerializeField]
+        public LayerMask cullingMask;
+
+        public RenderTargetIdentifier renderTarget;
+
+        public VirtualCamera(in Camera camera)
+        {
+            SetProperties(camera);
+        }
+
+        public VirtualCamera(in bool isOrthographic,
+            in float size, in float fov, in float aspect,
+            in float near, in float far)
+        {
+            SetProperties(isOrthographic, size, fov, aspect, near, far);
+        }
+
+        public VirtualCamera(in bool isOrthographic,
+            in float left, in float right, in float bottom, in float top,
+            in float near, in float far)
+        {
+            SetProperties(isOrthographic, left, right, bottom, top, near, far);
+        }
+
+        public void SetTransform(in Vector3 position, in Quaternion rotation)
+        {
+            m_isDirt = true;
+            m_Position = position;
+            m_Rotation = rotation;
+        }
+
+        public void SetProperties(in Camera camera)
+        {
+            SetProperties(camera.orthographic,
+                camera.orthographicSize, camera.fieldOfView, camera.aspect, camera.nearClipPlane, camera.farClipPlane);
+        }
+
+        public void SetProperties(in bool isOrthographic,
+            in float size, in float fov, in float aspect,
+            in float near, in float far)
+        {
+            m_isDirt = true;
+            m_IsOffCenter = false;
+            m_IsOrthographic = isOrthographic;
+            m_Size = size;
+            m_Fov = fov;
+            m_Aspect = aspect;
+            m_Near = near;
+            m_Far = far;
+            IsCreated = true;
+            MinValue(ref m_Size);
+            MinMaxFOV();
+            MinValue(ref m_Aspect);
+            MinMaxNearAndFar();
+            CommitLRBT();
+        }
+
+        public void SetProperties(in bool isOrthographic,
+            in float left, in float right, in float bottom, in float top,
+            in float near, in float far)
+        {
+            m_isDirt = true;
+            m_IsOffCenter = true;
+            m_IsOrthographic = isOrthographic;
+            m_Left = left;
+            m_Right = right;
+            m_Bottom = bottom;
+            m_Top = top;
+            m_Near = near;
+            m_Far = far;
+            IsCreated = true;
+            MinValue(ref m_Left);
+            MinValue(ref m_Right);
+            MinValue(ref m_Bottom);
+            MinValue(ref m_Top);
+            MinMaxNearAndFar();
+            CommitLRBT();
+        }
+
         public Vector3 position
         {
             get { return m_Position; }
             set
             {
-                SetDirtIfChanged(m_Position, value);
-                m_Position = value;
+                SetDirtIfChanged(ref m_Position, value);
             }
         }
 
@@ -127,8 +186,7 @@ namespace E.Rendering
             get { return m_Rotation; }
             set
             {
-                SetDirtIfChanged(m_Rotation, value);
-                m_Rotation = value;
+                SetDirtIfChanged(ref m_Rotation, value);
             }
         }
 
@@ -137,8 +195,8 @@ namespace E.Rendering
             get { return m_IsOffCenter; }
             set
             {
-                SetDirtIfChanged(m_IsOffCenter, value);
-                m_IsOffCenter = value;
+                SetDirtIfChanged(ref m_IsOffCenter, value);
+                CommitLRBT();
             }
         }
 
@@ -147,9 +205,9 @@ namespace E.Rendering
             get { return m_IsOrthographic; }
             set
             {
-                SetDirtIfChanged(m_IsOrthographic, value);
-                m_IsOrthographic = value;
-                ResetNearAndFar();
+                SetDirtIfChanged(ref m_IsOrthographic, value);
+                MinMaxNearAndFar();
+                CommitLRBT();
             }
         }
 
@@ -158,9 +216,10 @@ namespace E.Rendering
             get { return m_Size; }
             set
             {
-                SetDirtIfChanged(m_Size, value);
-                m_Size = value;
-                if (m_Size < MIN_VALUE) m_Size = MIN_VALUE;
+                m_IsOffCenter = false;
+                SetDirtIfChanged(ref m_Size, value);
+                MinValue(ref m_Size);
+                CommitLRBT();
             }
         }
 
@@ -169,10 +228,10 @@ namespace E.Rendering
             get { return m_Fov; }
             set
             {
-                SetDirtIfChanged(m_Fov, value);
-                m_Fov = value;
-                if (m_Fov < MIN_FOV) m_Fov = MIN_FOV;
-                if (m_Fov > MAX_FOV) m_Fov = MAX_FOV;
+                m_IsOffCenter = false;
+                SetDirtIfChanged(ref m_Fov, value);
+                MinMaxFOV();
+                CommitLRBT();
             }
         }
 
@@ -181,90 +240,109 @@ namespace E.Rendering
             get { return m_Aspect; }
             set
             {
-                SetDirtIfChanged(m_Aspect, value);
-                m_Aspect = value;
-                if (m_Aspect < MIN_VALUE) m_Aspect = MIN_VALUE;
+                m_IsOffCenter = false;
+                SetDirtIfChanged(ref m_Aspect, value);
+                MinValue(ref m_Aspect);
+                CommitLRBT();
             }
         }
 
         public float left
         {
             get { return m_Left; }
-            set
-            {
-                SetDirtIfChanged(m_Left, value);
-                m_Left = value;
-                if (m_Left < MIN_VALUE) m_Left = MIN_VALUE;
-            }
+            set { SetNearSideDistance(ref m_Left, value); }
         }
 
         public float right
         {
             get { return m_Right; }
-            set
-            {
-                SetDirtIfChanged(m_Right, value);
-                m_Right = value;
-                if (m_Right < MIN_VALUE) m_Right = MIN_VALUE;
-            }
+            set { SetNearSideDistance(ref m_Right, value); }
         }
 
         public float bottom
         {
             get { return m_Bottom; }
-            set
-            {
-                SetDirtIfChanged(m_Bottom, value);
-                m_Bottom = value;
-                if (m_Bottom < MIN_VALUE) m_Bottom = MIN_VALUE;
-            }
+            set { SetNearSideDistance(ref m_Bottom, value); }
         }
 
         public float top
         {
             get { return m_Top; }
-            set
-            {
-                SetDirtIfChanged(m_Top, value);
-                m_Top = value;
-                if (m_Top < MIN_VALUE) m_Top = MIN_VALUE;
-            }
+            set { SetNearSideDistance(ref m_Top, value); }
         }
 
         public float near
         {
             get { return m_Near; }
-            set
-            {
-                SetDirtIfChanged(m_Near, value);
-                m_Near = value;
-                ResetNearAndFar();
-            }
+            set { SetNearFar(ref m_Near, value); }
         }
 
         public float far
         {
             get { return m_Far; }
-            set
-            {
-                SetDirtIfChanged(m_Far, value);
-                m_Far = value;
-                ResetNearAndFar();
-            }
+            set { SetNearFar(ref m_Far, value); }
         }
 
-        private void ResetNearAndFar()
+        private void SetNearSideDistance(ref float d, in float value)
+        {
+            m_IsOffCenter = true;
+            SetDirtIfChanged(ref d, value);
+            MinValue(ref d);
+        }
+
+        private void SetNearFar(ref float d, in float value)
+        {
+            SetDirtIfChanged(ref d, value);
+            MinMaxNearAndFar();
+            CommitLRBT();
+        }
+
+        private void MinMaxNearAndFar()
         {
             if (!m_IsOrthographic)
             {
-                if (m_Near < MIN_VALUE) m_Near = MIN_VALUE;
+                MinValue(ref m_Near);
             }
             if (m_Far <= m_Near) m_Far = m_Near + MIN_VALUE;
         }
 
-        private void SetDirtIfChanged<T>(in T a, in T b) where T : System.IEquatable<T>
+        private void CommitLRBT()
+        {
+            if (m_IsOffCenter) return;
+            float x, y;
+            if (m_IsOrthographic)
+            {
+                y = m_Size;
+                x = y * m_Aspect;
+            }
+            else
+            {
+                //degree to radians: r = d * 0.0174532925
+                //half radians: r *= 0.5
+                y = (float)(m_Near * Math.Tan(0.00872664625 * fov));
+                x = y * aspect;
+            }
+            m_Left = -x;
+            m_Right = x;
+            m_Bottom = -y;
+            m_Top = y;
+        }
+
+        private void SetDirtIfChanged<T>(ref T a, in T b) where T : System.IEquatable<T>
         {
             if (!a.Equals(b)) m_isDirt = true;
+            a = b;
+        }
+
+        private void MinMaxFOV()
+        {
+            if (m_Fov < MIN_FOV) m_Fov = MIN_FOV;
+            if (m_Fov > MAX_FOV) m_Fov = MAX_FOV;
+        }
+
+        private void MinValue(ref float val)
+        {
+            if (val < MIN_VALUE) val = MIN_VALUE;
         }
 
         public Matrix4x4 worldToViewMatrix
@@ -284,55 +362,36 @@ namespace E.Rendering
         {
             get
             {
-                if (m_IsOffCenter)
+                if (isOrthographic)
                 {
-                    if (isOrthographic)
-                    {
-                        return Matrix4x4.Ortho(-left, right, -bottom, top, near, far);
-                    }
-                    else
-                    {
-                        return Matrix4x4.Frustum(-left, right, -bottom, top, near, far);
-                    }
+                    return Matrix4x4.Ortho(-left, right, -bottom, top, near, far);
                 }
                 else
                 {
-                    if (isOrthographic)
-                    {
-                        float y = size;
-                        float x = y * aspect;
-                        return Matrix4x4.Ortho(-x, x, -y, y, near, far);
-                    }
-                    else
-                    {
-                        return Matrix4x4.Perspective(fov, aspect, near, far);
-                    }
+                    return Matrix4x4.Frustum(-left, right, -bottom, top, near, far);
                 }
             }
         }
 
         public Matrix4x4 cullingMatrix
-        {
-            get
-            {
-                return projectionMatrix * worldToViewMatrix;
-            }
-        }
+        { get { return projectionMatrix * worldToViewMatrix; } }
 
-        public bool PropertiesChanged()
-        {
-            return m_isDirt;
-        }
+        public bool PropertiesChanged() { return m_isDirt; }
 
-        public void EnqueueUpdate()
+        public void EnqueueRender()
         {
 
             m_isDirt = true;
         }
 
-        public VirtualCameraPlane GetPlane(in VirtualCamera camera, in float distance)
+        public CameraPlane GetPlane(in float distance)
         {
-            return new VirtualCameraPlane(camera, distance);
+            return new CameraPlane(this, distance);
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
         }
     }
 }
