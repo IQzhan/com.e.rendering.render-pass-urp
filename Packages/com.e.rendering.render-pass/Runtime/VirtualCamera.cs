@@ -27,6 +27,12 @@ namespace E.Rendering
             topLeft = mat * new Vector3(xn, yp, -distance);
             topRight = mat * new Vector3(xp, yp, -distance);
             bottomRight = mat * new Vector3(xp, yn, -distance);
+            plane = new Plane(bottomLeft, topLeft, topRight);
+        }
+
+        public static CameraPlane GetPlane(in VirtualCamera camera, in float distance)
+        {
+            return new CameraPlane(camera, distance);
         }
 
         public float distance;
@@ -38,10 +44,12 @@ namespace E.Rendering
         public Vector3 topRight;
 
         public Vector3 bottomRight;
+
+        public Plane plane;
     }
 
     [Serializable]
-    public class VirtualCamera : IDisposable
+    public class VirtualCamera
     {
         private const float MIN_VALUE = 0.01f;
 
@@ -52,7 +60,7 @@ namespace E.Rendering
         [SerializeField]
         public bool IsCreated { get; private set; }
 
-        private bool m_isDirt;
+        private bool m_isDirty;
 
         [SerializeField]
         private Vector3 m_Position;
@@ -119,7 +127,7 @@ namespace E.Rendering
 
         public void SetTransform(in Vector3 position, in Quaternion rotation)
         {
-            m_isDirt = true;
+            m_isDirty = true;
             m_Position = position;
             m_Rotation = rotation;
         }
@@ -134,7 +142,7 @@ namespace E.Rendering
             in float size, in float fov, in float aspect,
             in float near, in float far)
         {
-            m_isDirt = true;
+            m_isDirty = true;
             m_IsOffCenter = false;
             m_IsOrthographic = isOrthographic;
             m_Size = size;
@@ -154,7 +162,7 @@ namespace E.Rendering
             in float left, in float right, in float bottom, in float top,
             in float near, in float far)
         {
-            m_isDirt = true;
+            m_isDirty = true;
             m_IsOffCenter = true;
             m_IsOrthographic = isOrthographic;
             m_Left = left;
@@ -172,12 +180,14 @@ namespace E.Rendering
             CommitLRBT();
         }
 
+        public bool isDirty { get { return m_isDirty; } set { m_isDirty = value; } }
+
         public Vector3 position
         {
             get { return m_Position; }
             set
             {
-                SetDirtIfChanged(ref m_Position, value);
+                SetDirtyIfChanged(ref m_Position, value);
             }
         }
 
@@ -186,7 +196,7 @@ namespace E.Rendering
             get { return m_Rotation; }
             set
             {
-                SetDirtIfChanged(ref m_Rotation, value);
+                SetDirtyIfChanged(ref m_Rotation, value);
             }
         }
 
@@ -195,7 +205,7 @@ namespace E.Rendering
             get { return m_IsOffCenter; }
             set
             {
-                SetDirtIfChanged(ref m_IsOffCenter, value);
+                SetDirtyIfChanged(ref m_IsOffCenter, value);
                 CommitLRBT();
             }
         }
@@ -205,7 +215,7 @@ namespace E.Rendering
             get { return m_IsOrthographic; }
             set
             {
-                SetDirtIfChanged(ref m_IsOrthographic, value);
+                SetDirtyIfChanged(ref m_IsOrthographic, value);
                 MinMaxNearAndFar();
                 CommitLRBT();
             }
@@ -217,7 +227,7 @@ namespace E.Rendering
             set
             {
                 m_IsOffCenter = false;
-                SetDirtIfChanged(ref m_Size, value);
+                SetDirtyIfChanged(ref m_Size, value);
                 MinValue(ref m_Size);
                 CommitLRBT();
             }
@@ -229,7 +239,7 @@ namespace E.Rendering
             set
             {
                 m_IsOffCenter = false;
-                SetDirtIfChanged(ref m_Fov, value);
+                SetDirtyIfChanged(ref m_Fov, value);
                 MinMaxFOV();
                 CommitLRBT();
             }
@@ -241,7 +251,7 @@ namespace E.Rendering
             set
             {
                 m_IsOffCenter = false;
-                SetDirtIfChanged(ref m_Aspect, value);
+                SetDirtyIfChanged(ref m_Aspect, value);
                 MinValue(ref m_Aspect);
                 CommitLRBT();
             }
@@ -286,13 +296,13 @@ namespace E.Rendering
         private void SetNearSideDistance(ref float d, in float value)
         {
             m_IsOffCenter = true;
-            SetDirtIfChanged(ref d, value);
+            SetDirtyIfChanged(ref d, value);
             MinValue(ref d);
         }
 
         private void SetNearFar(ref float d, in float value)
         {
-            SetDirtIfChanged(ref d, value);
+            SetDirtyIfChanged(ref d, value);
             MinMaxNearAndFar();
             CommitLRBT();
         }
@@ -317,9 +327,9 @@ namespace E.Rendering
             }
             else
             {
-                //degree to radians: r = d * 0.0174532925
+                //degree to radians: r = d * 0.01745329251994329576923690768489
                 //half radians: r *= 0.5
-                y = (float)(m_Near * Math.Tan(0.00872664625 * fov));
+                y = (float)(m_Near * Math.Tan(0.00872664625997164788461845384244 * fov));
                 x = y * aspect;
             }
             m_Left = -x;
@@ -328,9 +338,9 @@ namespace E.Rendering
             m_Top = y;
         }
 
-        private void SetDirtIfChanged<T>(ref T a, in T b) where T : System.IEquatable<T>
+        private void SetDirtyIfChanged<T>(ref T a, in T b) where T : System.IEquatable<T>
         {
-            if (!a.Equals(b)) m_isDirt = true;
+            if (!a.Equals(b)) m_isDirty = true;
             a = b;
         }
 
@@ -376,22 +386,9 @@ namespace E.Rendering
         public Matrix4x4 cullingMatrix
         { get { return projectionMatrix * worldToViewMatrix; } }
 
-        public bool PropertiesChanged() { return m_isDirt; }
-
-        public void EnqueueRender()
-        {
-
-            m_isDirt = true;
-        }
-
         public CameraPlane GetPlane(in float distance)
         {
             return new CameraPlane(this, distance);
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
         }
     }
 }

@@ -6,47 +6,56 @@ namespace E.Rendering
     public partial class CustomRenderPassComponent
     {
         /// <summary>
-        /// Set camera matrix
+        /// Set matrix to current render camera
         /// </summary>
-        /// <param name="position">camera position</param>
-        /// <param name="rotation">camera rotation</param>
-        /// <param name="isOrthographic"></param>
-        /// <param name="size">half height of orthographic camera</param>
-        /// <param name="fov">vertical field of view in degree</param>
-        /// <param name="aspect">width/height</param>
-        /// <param name="near">near plane</param>
-        /// <param name="far">far plane</param>
-        protected void SetCameraMatrix(in Vector3 position, in Quaternion rotation,
-            in bool isOrthographic,
-            in float size, in float fov, in float aspect,
-            in float near, in float far,
-            out Matrix4x4 worldToViewMatrix, out Matrix4x4 projectionMatrix, out Matrix4x4 cullingMatrix)
+        /// <param name="virtualCamera"></param>
+        protected void SetCameraMatrix(in VirtualCamera virtualCamera)
         {
-            Pass.SetCameraMatrix(position, rotation, isOrthographic, size, fov, aspect, near, far,
-                out worldToViewMatrix, out projectionMatrix, out cullingMatrix);
+            Pass.SetCameraMatrix(virtualCamera);
         }
 
-        /// <summary>
-        /// Set camera matrix off center
-        /// </summary>
-        /// <param name="position">camera position</param>
-        /// <param name="rotation">camera rotation</param>
-        /// <param name="isOrthographic">true is orthographic camera</param>
-        /// <param name="left">left distance at near plane</param>
-        /// <param name="right">right distance at near plane</param>
-        /// <param name="bottom">bottom distance at near plane</param>
-        /// <param name="top">top distance at near plane</param>
-        /// <param name="near">near plane</param>
-        /// <param name="far">far plane</param>
-        internal void SetCameraMatrix(in Vector3 position, in Quaternion rotation,
-            in bool isOrthographic,
-            in float left, in float right, in float bottom, in float top,
-            in float near, in float far,
-            out Matrix4x4 worldToViewMatrix, out Matrix4x4 projectionMatrix, out Matrix4x4 cullingMatrix)
-        {
-            Pass.SetCameraMatrix(position, rotation, isOrthographic, left, right, bottom, top, near, far,
-                out worldToViewMatrix, out projectionMatrix, out cullingMatrix);
-        }
+        ///// <summary>
+        ///// Set camera matrix
+        ///// </summary>
+        ///// <param name="position">camera position</param>
+        ///// <param name="rotation">camera rotation</param>
+        ///// <param name="isOrthographic"></param>
+        ///// <param name="size">half height of orthographic camera</param>
+        ///// <param name="fov">vertical field of view in degree</param>
+        ///// <param name="aspect">width/height</param>
+        ///// <param name="near">near plane</param>
+        ///// <param name="far">far plane</param>
+        //protected void SetCameraMatrix(in Vector3 position, in Quaternion rotation,
+        //    in bool isOrthographic,
+        //    in float size, in float fov, in float aspect,
+        //    in float near, in float far,
+        //    out Matrix4x4 worldToViewMatrix, out Matrix4x4 projectionMatrix, out Matrix4x4 cullingMatrix)
+        //{
+        //    Pass.SetCameraMatrix(position, rotation, isOrthographic, size, fov, aspect, near, far,
+        //        out worldToViewMatrix, out projectionMatrix, out cullingMatrix);
+        //}
+
+        ///// <summary>
+        ///// Set camera matrix off center
+        ///// </summary>
+        ///// <param name="position">camera position</param>
+        ///// <param name="rotation">camera rotation</param>
+        ///// <param name="isOrthographic">true is orthographic camera</param>
+        ///// <param name="left">left distance at near plane</param>
+        ///// <param name="right">right distance at near plane</param>
+        ///// <param name="bottom">bottom distance at near plane</param>
+        ///// <param name="top">top distance at near plane</param>
+        ///// <param name="near">near plane</param>
+        ///// <param name="far">far plane</param>
+        //internal void SetCameraMatrix(in Vector3 position, in Quaternion rotation,
+        //    in bool isOrthographic,
+        //    in float left, in float right, in float bottom, in float top,
+        //    in float near, in float far,
+        //    out Matrix4x4 worldToViewMatrix, out Matrix4x4 projectionMatrix, out Matrix4x4 cullingMatrix)
+        //{
+        //    Pass.SetCameraMatrix(position, rotation, isOrthographic, left, right, bottom, top, near, far,
+        //        out worldToViewMatrix, out projectionMatrix, out cullingMatrix);
+        //}
 
         /// <summary>
         /// Reset camera matrix after use

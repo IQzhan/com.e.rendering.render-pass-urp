@@ -139,7 +139,7 @@ namespace E.Rendering
                 if (disposing)
                 {
                     Pass = null;
-                    DisposedManaged();
+                    DisposeManaged();
                 }
                 DisposeUnmanaged();
                 m_DisposedValue = true;
@@ -149,7 +149,7 @@ namespace E.Rendering
         /// <summary>
         /// Dispose managed object
         /// </summary>
-        protected abstract void DisposedManaged();
+        protected abstract void DisposeManaged();
 
         /// <summary>
         /// Dispose unmanaged resources and objects such as materials

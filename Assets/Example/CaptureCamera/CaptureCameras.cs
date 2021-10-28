@@ -11,7 +11,7 @@ public class CaptureCameras : CustomRenderPassComponent
 
     protected override void Initialize()
     {
-        
+        //ªÒ»°gameloop
     }
     
     public override bool IsTileCompatible()
@@ -33,7 +33,9 @@ public class CaptureCameras : CustomRenderPassComponent
     {
         // CommandBuffer cmd = Command;
         // ScriptableRenderContext context = Context;
+        //VirtualCamera virtualCamera = new VirtualCamera(renderingData.cameraData.camera);
 
+        
     }
 
     public override void OnCameraCleanup()
@@ -46,7 +48,7 @@ public class CaptureCameras : CustomRenderPassComponent
 
     }
 
-    protected override void DisposedManaged()
+    protected override void DisposeManaged()
     {
         
     }

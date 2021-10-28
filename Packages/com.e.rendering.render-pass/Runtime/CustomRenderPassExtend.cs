@@ -5,30 +5,36 @@ namespace E.Rendering
 {
     public partial class CustomRenderPass
     {
-        internal void SetCameraMatrix(in Vector3 position, in Quaternion rotation,
-            in bool isOrthographic,
-            in float size, in float fov, in float aspect,
-            in float near, in float far,
-            out Matrix4x4 worldToViewMatrix, out Matrix4x4 projectionMatrix, out Matrix4x4 cullingMatrix)
+        internal void SetCameraMatrix(in VirtualCamera virtualCamera)
         {
-            camera.aspect = aspect;
-            worldToViewMatrix = Utility.GetViewMatrix(position, rotation);
-            projectionMatrix = Utility.GetProjectionMatrix(isOrthographic, size, fov, aspect, near, far);
-            cullingMatrix = projectionMatrix * worldToViewMatrix;
-            SetCameraMatrices(worldToViewMatrix, projectionMatrix, cullingMatrix);
+            camera.aspect = virtualCamera.aspect;
+            SetCameraMatrices(virtualCamera.worldToViewMatrix, virtualCamera.projectionMatrix, virtualCamera.cullingMatrix);
         }
 
-        internal void SetCameraMatrix(in Vector3 position, in Quaternion rotation,
-            in bool isOrthographic,
-            in float left, in float right, in float bottom, in float top,
-            in float near, in float far,
-            out Matrix4x4 worldToViewMatrix, out Matrix4x4 projectionMatrix, out Matrix4x4 cullingMatrix)
-        {
-            worldToViewMatrix = Utility.GetViewMatrix(position, rotation);
-            projectionMatrix = Utility.GetProjectionMatrix(isOrthographic, left, right, bottom, top, near, far);
-            cullingMatrix = projectionMatrix * worldToViewMatrix;
-            SetCameraMatrices(worldToViewMatrix, projectionMatrix, cullingMatrix);
-        }
+        //internal void SetCameraMatrix(in Vector3 position, in Quaternion rotation,
+        //    in bool isOrthographic,
+        //    in float size, in float fov, in float aspect,
+        //    in float near, in float far,
+        //    out Matrix4x4 worldToViewMatrix, out Matrix4x4 projectionMatrix, out Matrix4x4 cullingMatrix)
+        //{
+        //    camera.aspect = aspect;
+        //    worldToViewMatrix = Utility.GetViewMatrix(position, rotation);
+        //    projectionMatrix = Utility.GetProjectionMatrix(isOrthographic, size, fov, aspect, near, far);
+        //    cullingMatrix = projectionMatrix * worldToViewMatrix;
+        //    SetCameraMatrices(worldToViewMatrix, projectionMatrix, cullingMatrix);
+        //}
+
+        //internal void SetCameraMatrix(in Vector3 position, in Quaternion rotation,
+        //    in bool isOrthographic,
+        //    in float left, in float right, in float bottom, in float top,
+        //    in float near, in float far,
+        //    out Matrix4x4 worldToViewMatrix, out Matrix4x4 projectionMatrix, out Matrix4x4 cullingMatrix)
+        //{
+        //    worldToViewMatrix = Utility.GetViewMatrix(position, rotation);
+        //    projectionMatrix = Utility.GetProjectionMatrix(isOrthographic, left, right, bottom, top, near, far);
+        //    cullingMatrix = projectionMatrix * worldToViewMatrix;
+        //    SetCameraMatrices(worldToViewMatrix, projectionMatrix, cullingMatrix);
+        //}
 
         private void SetCameraMatrices(in Matrix4x4 worldToViewMatrix, in Matrix4x4 projectionMatrix, in Matrix4x4 cullingMatrix)
         {
