@@ -4,14 +4,22 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using E.Rendering;
 
-[VolumeComponentMenu("Render Pass/Capture Cameras")]
-public class CaptureCameras : CustomRenderPassComponent
+
+[VolumeComponentMenu("Custom/Capture Mini View")]
+public class CaptureMiniView : CustomRenderPassComponent
 {
-    protected override CustomRenderPassComponentData Data => CaptureCameraData.Instance;
+    // Resources data
+    protected override CustomRenderPassComponentData Data => CaptureMiniViewData.Instance;
+
+    // Parameters here like
+    // public ClampedIntParameter size = new ClampedIntParameter(0, 0, 10);
+
+    // private Material material;
 
     protected override void Initialize()
     {
-        //»ñÈ¡gameloop
+        // if (material == null && CaptureMiniViewData.Instance.shader != null)
+        //     material = CoreUtils.CreateEngineMaterial(CaptureMiniViewData.Instance);        
     }
     
     public override bool IsTileCompatible()
@@ -21,7 +29,8 @@ public class CaptureCameras : CustomRenderPassComponent
 
     public override bool IsActive()
     {
-        return true;
+        //return size.Value > 0 && material != null;
+        return false;
     }
 
     public override void OnCameraSetup(ref RenderingData renderingData)
@@ -33,9 +42,6 @@ public class CaptureCameras : CustomRenderPassComponent
     {
         // CommandBuffer cmd = Command;
         // ScriptableRenderContext context = Context;
-        //VirtualCamera virtualCamera = new VirtualCamera(renderingData.cameraData.camera);
-
-        
     }
 
     public override void OnCameraCleanup()
@@ -45,7 +51,8 @@ public class CaptureCameras : CustomRenderPassComponent
 
     protected override void DisposeUnmanaged()
     {
-
+        // if (material != null)
+        //     CoreUtils.Destroy(material);
     }
 
     protected override void DisposeManaged()

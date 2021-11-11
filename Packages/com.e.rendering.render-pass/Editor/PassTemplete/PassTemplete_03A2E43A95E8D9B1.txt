@@ -55,7 +55,7 @@ public class #PASS_NAME# : CustomRenderPassComponent
         //     CoreUtils.Destroy(material);
     }
 
-    protected override void DisposedManaged()
+    protected override void DisposeManaged()
     {
         
     }

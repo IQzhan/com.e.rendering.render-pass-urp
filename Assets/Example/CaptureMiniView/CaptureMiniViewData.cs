@@ -2,7 +2,7 @@ using UnityEngine;
 using E.Rendering;
 
 
-public class CaptureCameraData : CustomRenderPassComponentData<CaptureCameraData>
+public class CaptureMiniViewData : CustomRenderPassComponentData<CaptureMiniViewData>
 {
     // public Shader shader;
     // Resources here ...
