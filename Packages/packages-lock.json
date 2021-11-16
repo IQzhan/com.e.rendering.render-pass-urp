@@ -8,11 +8,11 @@
       "hash": "e60d8b034639077b6f4b88ea89336bd0982bbab9"
     },
     "com.e.global": {
-      "version": "git://github.com/IQzhan/GlobalBehaviours_Unity.git#upm",
+      "version": "git://github.com/IQzhan/GlobalBehaviours_Unity.git#v1.0.1",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "3fdfc4ed324df923bf4fcada8d9d50f07895ab8b"
+      "hash": "29fc23719cf73ccd8b284ae3f55ac16f131df32b"
     },
     "com.e.rendering.render-pass": {
       "version": "file:com.e.rendering.render-pass",

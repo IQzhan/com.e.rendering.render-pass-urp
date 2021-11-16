@@ -16,21 +16,14 @@ namespace E.Rendering
         private RenderTargetHandle m_TempColorTarget;
         private RenderTargetHandle m_AfterPostProcessTexture;
 
-        private struct RenderPassEventProps
-        {
-            public List<CustomRenderPassComponent> volumeComponents;
-
-            public ScriptableRenderPassInput passInput;
-        }
-
         public override void Create()
         {
-            Dictionary<RenderPassEvent, RenderPassEventProps> splitByRenderPassEvent = CollectAllComponents();
-            CreateRenderPasses(splitByRenderPassEvent);
-            Initialize();
+            CollectComponents();
+            CollectRenderPasses();
+            InitializeRenderTarget();
         }
 
-        private Dictionary<RenderPassEvent, RenderPassEventProps> CollectAllComponents()
+        private void CollectComponents()
         {
             VolumeManager.instance.CheckBaseTypes();
             VolumeStack stack = VolumeManager.instance.stack;
@@ -40,36 +33,22 @@ namespace E.Rendering
                 .Select(t => stack.GetComponent(t) as CustomRenderPassComponent)
                 .OrderBy(c => (int)c.PassEvent * 100 + c.Order)
                 .ToList();
-            Dictionary<RenderPassEvent, RenderPassEventProps> splitByRenderPassEvent =
-                new Dictionary<RenderPassEvent, RenderPassEventProps>();
-            for (int i = 0; i < m_Components.Count; i++)
-            {
-                CustomRenderPassComponent component = m_Components[i];
-                if (!splitByRenderPassEvent.TryGetValue(component.PassEvent, out RenderPassEventProps props))
-                {
-                    splitByRenderPassEvent[component.PassEvent] = props = new RenderPassEventProps()
-                    { volumeComponents = new List<CustomRenderPassComponent>() };
-                }
-                props.volumeComponents.Add(component);
-                props.passInput |= component.PassInput;
-                splitByRenderPassEvent[component.PassEvent] = props;
-            }
-            return splitByRenderPassEvent;
         }
 
-        private void CreateRenderPasses(in Dictionary<RenderPassEvent, RenderPassEventProps> splitByRenderPassEvent)
+        private void CollectRenderPasses()
         {
-            m_RenderPasses = new List<CustomRenderPass>();
-            foreach (KeyValuePair<RenderPassEvent, RenderPassEventProps> kv in splitByRenderPassEvent)
-            {
-                CustomRenderPass renderPass =
-                    new CustomRenderPass("CustomRenderPass." + kv.Key.ToString(), kv.Key, kv.Value.passInput, kv.Value.volumeComponents);
-                m_RenderPasses.Add(renderPass);
-            }
-            splitByRenderPassEvent.Clear();
+            m_RenderPasses = m_Components
+                .GroupBy(c => c.PassEvent)
+                .Select(g =>
+                {
+                    ScriptableRenderPassInput passInput = ScriptableRenderPassInput.None;
+                    foreach (var c in g) { passInput |= c.PassInput; }
+                    return new CustomRenderPass($"CustomRenderPass.{g.Key}", g.Key, passInput, g.ToList());
+                })
+                .ToList();
         }
 
-        private void Initialize()
+        private void InitializeRenderTarget()
         {
             m_AfterPostProcessTexture.Init("_AfterPostProcessTexture");
             m_TempColorTarget.Init("_TemporaryColorTarget");

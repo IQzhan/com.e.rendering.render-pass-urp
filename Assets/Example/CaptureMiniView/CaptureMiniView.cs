@@ -30,7 +30,7 @@ public class CaptureMiniView : CustomRenderPassComponent
     public override bool IsActive()
     {
         //return size.Value > 0 && material != null;
-        return false;
+        return true;
     }
 
     public override void OnCameraSetup(ref RenderingData renderingData)
