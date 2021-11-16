@@ -9,7 +9,7 @@ namespace E.Rendering
         /// Set matrices to current render camera
         /// </summary>
         /// <param name="virtualCamera"></param>
-        protected void SetCameraMatrix(in VirtualCamera virtualCamera)
+        protected void SetCameraMatrices(in VirtualCamera virtualCamera)
         {
             Pass.SetCameraMatrices(virtualCamera);
         }
@@ -28,7 +28,7 @@ namespace E.Rendering
         /// <summary>
         /// Reset camera matrix after use
         /// </summary>
-        protected void ResetCameraMatrix()
+        protected void ResetCameraMatrices()
         {
             Pass.ResetCameraMatrices();
         }

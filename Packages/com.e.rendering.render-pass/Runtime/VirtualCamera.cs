@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace E.Rendering
 {
@@ -48,14 +47,31 @@ namespace E.Rendering
         public Plane plane;
     }
 
+    internal struct VirtualCameraData
+    {
+        public bool isOffCenter;
+        public bool isOrthographic;
+        public float size;
+        public float fov;
+        public float aspect;
+        public float left;
+        public float right;
+        public float bottom;
+        public float top;
+        public float near;
+        public float far;
+    }
+
     [Serializable]
-    public class VirtualCamera
+    public unsafe struct VirtualCamera
     {
         private const float MIN_VALUE = 0.01f;
 
         private const float MIN_FOV = 0.01f;
 
         private const float MAX_FOV = 179.99f;
+
+        private VirtualCameraData* data;
 
         [SerializeField]
         public bool IsCreated { get; private set; }
@@ -101,29 +117,26 @@ namespace E.Rendering
         [SerializeField]
         private float m_Far;
 
-        [SerializeField]
-        public LayerMask cullingMask;
+        //public VirtualCamera(in Camera camera)
+        //{
+        //    data = null;
 
-        public RenderTargetIdentifier renderTarget;
+        //    SetProperties(camera);
+        //}
 
-        public VirtualCamera(in Camera camera)
-        {
-            SetProperties(camera);
-        }
+        //public VirtualCamera(in bool isOrthographic,
+        //    in float size, in float fov, in float aspect,
+        //    in float near, in float far)
+        //{
+        //    SetProperties(isOrthographic, size, fov, aspect, near, far);
+        //}
 
-        public VirtualCamera(in bool isOrthographic,
-            in float size, in float fov, in float aspect,
-            in float near, in float far)
-        {
-            SetProperties(isOrthographic, size, fov, aspect, near, far);
-        }
-
-        public VirtualCamera(in bool isOrthographic,
-            in float left, in float right, in float bottom, in float top,
-            in float near, in float far)
-        {
-            SetProperties(isOrthographic, left, right, bottom, top, near, far);
-        }
+        //public VirtualCamera(in bool isOrthographic,
+        //    in float left, in float right, in float bottom, in float top,
+        //    in float near, in float far)
+        //{
+        //    SetProperties(isOrthographic, left, right, bottom, top, near, far);
+        //}
 
         public void SetTransform(in Vector3 position, in Quaternion rotation)
         {
