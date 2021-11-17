@@ -29,14 +29,14 @@ namespace E.Rendering
         internal Camera camera;
 
         internal CustomRenderPass
-            (in string profilerTag, in RenderPassEvent renderPassEvent, in ScriptableRenderPassInput passInput, in List<CustomRenderPassComponent> volumeComponents)
+            (string profilerTag, RenderPassEvent renderPassEvent, ScriptableRenderPassInput passInput, List<CustomRenderPassComponent> volumeComponents)
         {
             InitializeProperties(renderPassEvent, passInput);
             InitializeComponents(volumeComponents);
             InitializeProfilingSamplers(profilerTag, volumeComponents);
         }
 
-        private void InitializeProperties(in RenderPassEvent renderPassEvent, in ScriptableRenderPassInput passInput)
+        private void InitializeProperties(RenderPassEvent renderPassEvent, ScriptableRenderPassInput passInput)
         {
             if (renderPassEvent == RenderPassEvent.AfterRenderingPostProcessing)
             { this.renderPassEvent = RenderPassEvent.AfterRendering; }
@@ -44,7 +44,7 @@ namespace E.Rendering
             ConfigureInput(passInput);
         }
 
-        private void InitializeComponents(in List<CustomRenderPassComponent> volumeComponents)
+        private void InitializeComponents(List<CustomRenderPassComponent> volumeComponents)
         {
             m_VolumeComponents = volumeComponents;
             for (int i = 0; i < m_VolumeComponents.Count; i++)
@@ -54,14 +54,14 @@ namespace E.Rendering
             m_ActiveComponents = new List<int>(volumeComponents.Count);
         }
 
-        private void InitializeProfilingSamplers(in string profilerTag, in List<CustomRenderPassComponent> volumeComponents)
+        private void InitializeProfilingSamplers(string profilerTag, List<CustomRenderPassComponent> volumeComponents)
         {
             m_ProfilerTag = profilerTag;
             m_ProfilingSamplers = volumeComponents.Select(c => new ProfilingSampler(c.displayName)).ToList();
             m_InsideProfilingSampler = new ProfilingSampler(string.Empty);
         }
 
-        internal bool CheckActiveComponents(in bool nonPostProcessEnabled, in bool postProcessEnabled)
+        internal bool CheckActiveComponents(bool nonPostProcessEnabled, bool postProcessEnabled)
         {
             m_ActiveComponents.Clear();
             for (int i = 0; i < m_VolumeComponents.Count; i++)
@@ -77,7 +77,7 @@ namespace E.Rendering
             return m_ActiveComponents.Count != 0;
         }
 
-        internal void Setup(RenderTargetHandle colorTarget, RenderTargetHandle TempColorTarget)
+        internal void Setup(in RenderTargetHandle colorTarget, in RenderTargetHandle TempColorTarget)
         {
             m_ColorTarget = colorTarget;
             m_TempColorTarget = TempColorTarget;
@@ -126,14 +126,14 @@ namespace E.Rendering
             return cmd;
         }
 
-        private void ReleaseCommand(in ScriptableRenderContext context, in CommandBuffer cmd)
+        private void ReleaseCommand(in ScriptableRenderContext context, CommandBuffer cmd)
         {
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
             CommandBufferPool.Release(cmd);
         }
 
-        private void ConfigureCommandBuffer(in CommandBuffer cmd)
+        private void ConfigureCommandBuffer(CommandBuffer cmd)
         {
             command = cmd;
         }
@@ -148,12 +148,12 @@ namespace E.Rendering
             this.context = context;
         }
 
-        private void ConfigureCamera(in Camera camera)
+        private void ConfigureCamera(Camera camera)
         {
             this.camera = camera;
         }
 
-        private void InitializeRenderTextures(in CommandBuffer cmd, ref RenderingData renderingData)
+        private void InitializeRenderTextures(CommandBuffer cmd, ref RenderingData renderingData)
         {
             RenderTextureDescriptor descriptor = renderingData.cameraData.cameraTargetDescriptor;
             descriptor.msaaSamples = 1;
@@ -167,13 +167,13 @@ namespace E.Rendering
             m_TempColorTargetID = m_TempColorTarget.Identifier();
         }
 
-        private void ReleaseRenderTextures(in CommandBuffer cmd)
+        private void ReleaseRenderTextures(CommandBuffer cmd)
         {
             cmd.ReleaseTemporaryRT(m_TempColorTarget.id);
         }
 
         private void RenderComponents(in ScriptableRenderContext context,
-            ref RenderingData renderingData, in CommandBuffer cmd)
+            ref RenderingData renderingData, CommandBuffer cmd)
         {
             ConfigureRenderContext(context);
             ConfigureCamera(renderingData.cameraData.camera);
@@ -185,8 +185,8 @@ namespace E.Rendering
             FinalBlit(cmd);
         }
 
-        private void RenderComponent(in int activeIndex, in ScriptableRenderContext context,
-            ref RenderingData renderingData, in CommandBuffer cmd)
+        private void RenderComponent(int activeIndex, in ScriptableRenderContext context,
+            ref RenderingData renderingData, CommandBuffer cmd)
         {
             m_CurrActiveComponentIndex = activeIndex;
             int index = m_ActiveComponents[activeIndex];
@@ -202,7 +202,7 @@ namespace E.Rendering
             return m_CurrActiveComponentIndex == m_ActiveComponents.Count - 1;
         }
 
-        private void FinalBlit(in CommandBuffer cmd)
+        private void FinalBlit(CommandBuffer cmd)
         {
             if (currentTargetID == m_TempColorTargetID)
             {

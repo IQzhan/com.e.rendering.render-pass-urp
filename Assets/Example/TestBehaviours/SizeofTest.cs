@@ -1,5 +1,9 @@
+using E.Rendering;
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+
 namespace E.Test
 {
     [ExecuteAlways]
@@ -10,7 +14,6 @@ namespace E.Test
 
         private struct VirtualCameraData
         {
-            public bool isDirty;
             public Vector3 position;
             public Quaternion rotation;
             public bool isOffCenter;
@@ -51,7 +54,8 @@ namespace E.Test
 
         protected override void OnAwake()
         {
-            PrintSize<VirtualCameraData>();
+            PrintSize<RenderTargetHandle>();
+            PrintSize<VirtualCamera>();
             //PrintSize<EmptyData>();
             //PrintSize<BoolData>();
             //PrintConvert();

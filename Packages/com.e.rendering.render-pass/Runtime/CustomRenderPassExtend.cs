@@ -38,7 +38,7 @@ namespace E.Rendering
         }
 
         internal void SafeBlit(RenderTargetIdentifier sources, RenderTargetIdentifier destination,
-            in Material material = null, in int pass = 0)
+            Material material = null, int pass = 0)
         {
             if (destination == currentTargetID)
             {

@@ -5,7 +5,7 @@ namespace E.Rendering
 {
     public struct CameraPlane
     {
-        public CameraPlane(in VirtualCamera camera, in float distance)
+        public CameraPlane(VirtualCamera camera, float distance)
         {
             this.distance = distance;
             float yn, yp, xn, xp;
@@ -29,7 +29,7 @@ namespace E.Rendering
             plane = new Plane(bottomLeft, topLeft, topRight);
         }
 
-        public static CameraPlane GetPlane(in VirtualCamera camera, in float distance)
+        public static CameraPlane GetPlane(VirtualCamera camera, float distance)
         {
             return new CameraPlane(camera, distance);
         }
@@ -47,7 +47,7 @@ namespace E.Rendering
         public Plane plane;
     }
 
-    public struct VirtualCameraData
+    public struct VirtualCameraData : IEquatable<VirtualCameraData>
     {
         public Vector3 position;
         public Quaternion rotation;
@@ -62,9 +62,60 @@ namespace E.Rendering
         public float top;
         public float near;
         public float far;
+
+        public override bool Equals(object obj)
+        {
+            return obj is VirtualCameraData data && Equals(data);
+        }
+
+        public bool Equals(VirtualCameraData other)
+        {
+            return position.Equals(other.position) &&
+                   rotation.Equals(other.rotation) &&
+                   isOffCenter == other.isOffCenter &&
+                   isOrthographic == other.isOrthographic &&
+                   size == other.size &&
+                   fov == other.fov &&
+                   aspect == other.aspect &&
+                   left == other.left &&
+                   right == other.right &&
+                   bottom == other.bottom &&
+                   top == other.top &&
+                   near == other.near &&
+                   far == other.far;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 931829884;
+            hashCode = hashCode * -1521134295 + position.GetHashCode();
+            hashCode = hashCode * -1521134295 + rotation.GetHashCode();
+            hashCode = hashCode * -1521134295 + isOffCenter.GetHashCode();
+            hashCode = hashCode * -1521134295 + isOrthographic.GetHashCode();
+            hashCode = hashCode * -1521134295 + size.GetHashCode();
+            hashCode = hashCode * -1521134295 + fov.GetHashCode();
+            hashCode = hashCode * -1521134295 + aspect.GetHashCode();
+            hashCode = hashCode * -1521134295 + left.GetHashCode();
+            hashCode = hashCode * -1521134295 + right.GetHashCode();
+            hashCode = hashCode * -1521134295 + bottom.GetHashCode();
+            hashCode = hashCode * -1521134295 + top.GetHashCode();
+            hashCode = hashCode * -1521134295 + near.GetHashCode();
+            hashCode = hashCode * -1521134295 + far.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(VirtualCameraData left, VirtualCameraData right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(VirtualCameraData left, VirtualCameraData right)
+        {
+            return !(left == right);
+        }
     }
 
-    public unsafe struct VirtualCamera : IDisposable
+    public unsafe struct VirtualCamera : IDisposable, IEquatable<VirtualCamera>
     {
         private const float MIN_VALUE = 0.01f;
 
@@ -84,7 +135,7 @@ namespace E.Rendering
             m_IsDirty = null;
         }
 
-        public VirtualCamera(in Camera camera)
+        public VirtualCamera(Camera camera)
         {
             VirtualCameraData value = new VirtualCameraData();
             m_Data = &value;
@@ -93,9 +144,9 @@ namespace E.Rendering
             SetProperties(camera);
         }
 
-        public VirtualCamera(in bool isOrthographic,
-            in float size, in float fov, in float aspect,
-            in float near, in float far)
+        public VirtualCamera(bool isOrthographic,
+            float size, float fov, float aspect,
+            float near, float far)
         {
             VirtualCameraData value = new VirtualCameraData();
             m_Data = &value;
@@ -104,9 +155,9 @@ namespace E.Rendering
             SetProperties(isOrthographic, size, fov, aspect, near, far);
         }
 
-        public VirtualCamera(in bool isOrthographic,
-            in float left, in float right, in float bottom, in float top,
-            in float near, in float far)
+        public VirtualCamera(bool isOrthographic,
+            float left, float right, float bottom, float top,
+            float near, float far)
         {
             VirtualCameraData value = new VirtualCameraData();
             m_Data = &value;
@@ -115,27 +166,32 @@ namespace E.Rendering
             SetProperties(isOrthographic, left, right, bottom, top, near, far);
         }
 
-        public ref VirtualCameraData GetData()
+        public ref VirtualCameraData GetRefData()
         {
             return ref *m_Data;
         }
 
-        public void SetTransform(in Vector3 position, in Quaternion rotation)
+        public VirtualCameraData* GetData()
+        {
+            return m_Data;
+        }
+
+        public void SetTransform(Vector3 position, Quaternion rotation)
         {
             *m_IsDirty = true;
             m_Data->position = position;
             m_Data->rotation = rotation;
         }
 
-        public void SetProperties(in Camera camera)
+        public void SetProperties(Camera camera)
         {
             SetProperties(camera.orthographic,
                 camera.orthographicSize, camera.fieldOfView, camera.aspect, camera.nearClipPlane, camera.farClipPlane);
         }
 
-        public void SetProperties(in bool isOrthographic,
-            in float size, in float fov, in float aspect,
-            in float near, in float far)
+        public void SetProperties(bool isOrthographic,
+            float size, float fov, float aspect,
+            float near, float far)
         {
             *m_IsDirty = true;
             m_Data->isOffCenter = false;
@@ -152,9 +208,9 @@ namespace E.Rendering
             CommitLRBT();
         }
 
-        public void SetProperties(in bool isOrthographic,
-            in float left, in float right, in float bottom, in float top,
-            in float near, in float far)
+        public void SetProperties(bool isOrthographic,
+            float left, float right, float bottom, float top,
+            float near, float far)
         {
             *m_IsDirty = true;
             m_Data->isOffCenter = true;
@@ -286,7 +342,7 @@ namespace E.Rendering
             set { SetNearFar(ref m_Data->far, value); }
         }
 
-        private void SetNearSideDistance(ref float d, in float value)
+        private void SetNearSideDistance(ref float d, float value)
         {
             m_Data->isOffCenter = true;
             SetDirtyIfChanged(ref d, value);
@@ -379,9 +435,34 @@ namespace E.Rendering
         public Matrix4x4 cullingMatrix
         { get { return projectionMatrix * worldToViewMatrix; } }
 
-        public CameraPlane GetPlane(in float distance)
+        public CameraPlane GetPlane(float distance)
         {
             return new CameraPlane(this, distance);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is VirtualCamera camera && Equals(camera);
+        }
+
+        public bool Equals(VirtualCamera other)
+        {
+            return m_Data->Equals(*other.m_Data);
+        }
+
+        public override int GetHashCode()
+        {
+            return m_Data->GetHashCode();
+        }
+
+        public static bool operator ==(VirtualCamera left, VirtualCamera right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(VirtualCamera left, VirtualCamera right)
+        {
+            return !(left == right);
         }
     }
 }

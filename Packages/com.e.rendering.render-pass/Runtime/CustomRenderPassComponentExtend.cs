@@ -62,7 +62,7 @@ namespace E.Rendering
         /// <param name="destination"></param>
         /// <param name="material"></param>
         /// <param name="passIndex"></param>
-        protected void Blit(in RenderTargetIdentifier source, in RenderTargetIdentifier destination, in Material material = null, in int passIndex = 0)
+        protected void Blit(in RenderTargetIdentifier source, in RenderTargetIdentifier destination, Material material = null, int passIndex = 0)
         {
             Pass.SafeBlit(source, destination, material, passIndex);
         }
@@ -73,7 +73,7 @@ namespace E.Rendering
         /// <param name="destination"></param>
         /// <param name="material"></param>
         /// <param name="passIndex"></param>
-        protected void Blit(in RenderTargetIdentifier destination, in Material material, in int passIndex)
+        protected void Blit(in RenderTargetIdentifier destination, Material material, int passIndex)
         {
             Blit(BuiltinRenderTextureType.None, destination, material, passIndex);
         }

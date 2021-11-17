@@ -68,7 +68,7 @@ namespace E.Rendering
         /// </summary>
         protected Camera CurrentCamera { get { return Pass.camera; } }
 
-        internal void Initialize(in CustomRenderPass pass)
+        internal void Initialize(CustomRenderPass pass)
         {
             Pass = pass;
             InitializeName();

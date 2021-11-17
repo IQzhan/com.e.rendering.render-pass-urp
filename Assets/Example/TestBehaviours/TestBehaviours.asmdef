@@ -2,7 +2,9 @@
     "name": "TestBehaviours",
     "rootNamespace": "E.Test",
     "references": [
-        "E.Global.Runtime"
+        "E.Global.Runtime",
+        "E.Rendering.RenderPass.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
