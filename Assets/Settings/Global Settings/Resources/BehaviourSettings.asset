@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_DeltaTime: 0
   m_Method: 0
+  m_AllowLog: 0
+  m_AllowLogError: 1

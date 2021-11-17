@@ -11,6 +11,12 @@ namespace E.Rendering
             SetCameraMatrices(virtualCamera.worldToViewMatrix, virtualCamera.projectionMatrix, virtualCamera.cullingMatrix);
         }
 
+        internal void SetCameraMatrices(in Matrix4x4 worldToViewMatrix, in Matrix4x4 projectionMatrix)
+        {
+            Matrix4x4 cullingMatrix = projectionMatrix * worldToViewMatrix;
+            SetCameraMatrices(worldToViewMatrix, projectionMatrix, cullingMatrix);
+        }
+
         internal void SetCameraMatrices(in Matrix4x4 worldToViewMatrix, in Matrix4x4 projectionMatrix, in Matrix4x4 cullingMatrix)
         {
             camera.worldToCameraMatrix = worldToViewMatrix;

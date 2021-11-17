@@ -1,0 +1,16 @@
+{
+    "name": "TestBehaviours",
+    "rootNamespace": "E.Test",
+    "references": [
+        "E.Global.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

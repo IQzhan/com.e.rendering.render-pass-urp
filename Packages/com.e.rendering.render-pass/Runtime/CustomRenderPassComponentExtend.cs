@@ -19,6 +19,16 @@ namespace E.Rendering
         /// </summary>
         /// <param name="worldToViewMatrix"></param>
         /// <param name="projectionMatrix"></param>
+        protected void SetCameraMatrices(in Matrix4x4 worldToViewMatrix, in Matrix4x4 projectionMatrix)
+        {
+            Pass.SetCameraMatrices(worldToViewMatrix, projectionMatrix);
+        }
+
+        /// <summary>
+        /// Set matrices to current render camera
+        /// </summary>
+        /// <param name="worldToViewMatrix"></param>
+        /// <param name="projectionMatrix"></param>
         /// <param name="cullingMatrix"></param>
         protected void SetCameraMatrices(in Matrix4x4 worldToViewMatrix, in Matrix4x4 projectionMatrix, in Matrix4x4 cullingMatrix)
         {
