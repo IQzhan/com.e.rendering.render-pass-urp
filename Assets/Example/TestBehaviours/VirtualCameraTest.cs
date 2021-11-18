@@ -16,12 +16,13 @@ namespace E.Test
 
         protected override void OnAwake()
         {
-            realCamera = Camera.main;
-            virtualCamera = new VirtualCamera(realCamera);
+            
         }
 
         protected override void OnEnable()
         {
+            realCamera = Camera.main;
+            virtualCamera = new VirtualCamera(realCamera);
             BehaviourManager.OnDrawGizmosCallback -= OnDrawGizmos;
             BehaviourManager.OnDrawGizmosCallback += OnDrawGizmos;
         }
@@ -36,20 +37,21 @@ namespace E.Test
         protected override void OnDisable()
         {
             BehaviourManager.OnDrawGizmosCallback -= OnDrawGizmos;
+            virtualCamera.Dispose();
         }
 
         protected override void OnDestroy()
         {
             Debug.Log("Destroy camera test");
-            virtualCamera.Dispose();
+            
         }
 
         private void OnDrawGizmos()
         {
             if (virtualCamera.IsCreated)
             {
-                CameraPlane plane0 = virtualCamera.GetPlane(virtualCamera.near);
-                CameraPlane plane1 = virtualCamera.GetPlane(virtualCamera.far);
+                CameraClipPlane plane0 = virtualCamera.GetClipPlane(virtualCamera.near);
+                CameraClipPlane plane1 = virtualCamera.GetClipPlane(virtualCamera.far);
                 Handles.color = Color.red;
                 DrawPlane(plane0.bottomLeft, plane0.topLeft, plane0.topRight, plane0.bottomRight);
                 DrawPlane(plane1.bottomLeft, plane1.topLeft, plane1.topRight, plane1.bottomRight);
