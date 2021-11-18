@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace E.Rendering
@@ -9,10 +10,32 @@ namespace E.Rendering
         {
             this.distance = distance;
             float yn, yp, xn, xp;
-            yn = -camera.bottom;
-            yp = camera.top;
-            xn = -camera.left;
-            xp = camera.right;
+            if (camera.isOffCenter)
+            {
+                yn = -camera.bottom;
+                yp = camera.top;
+                xn = -camera.left;
+                xp = camera.right;
+                
+            }
+            else
+            {
+                float y, x;
+                if (camera.isOrthographic)
+                {
+                    y = camera.size * 0.5f;
+                    x = y * camera.aspect;
+                }
+                else
+                {
+                    y = (float)(camera.near * Math.Tan(camera.fov * 0.00872664625997164788461845384244));
+                    x = y * camera.aspect;
+                }
+                yn = -y;
+                yp = y;
+                xn = -x;
+                xp = x;
+            }
             if (!camera.isOrthographic)
             {
                 float dn = distance / camera.near;
@@ -22,10 +45,10 @@ namespace E.Rendering
                 xp *= dn;
             }
             Matrix4x4 mat = camera.worldToViewMatrix.inverse;
-            bottomLeft = mat * new Vector3(xn, yn, -distance);
-            topLeft = mat * new Vector3(xn, yp, -distance);
-            topRight = mat * new Vector3(xp, yp, -distance);
-            bottomRight = mat * new Vector3(xp, yn, -distance);
+            bottomLeft = mat * new Vector4(xn, yn, -distance, 1);
+            topLeft = mat * new Vector4(xn, yp, -distance, 1);
+            topRight = mat * new Vector4(xp, yp, -distance, 1);
+            bottomRight = mat * new Vector4(xp, yn, -distance, 1);
             plane = new Plane(bottomLeft, topLeft, topRight);
         }
 
@@ -34,23 +57,23 @@ namespace E.Rendering
             return new CameraPlane(camera, distance);
         }
 
-        public float distance;
+        public float distance { get; private set; }
 
-        public Vector3 bottomLeft;
+        public Vector3 bottomLeft { get; private set; }
 
-        public Vector3 topLeft;
+        public Vector3 topLeft { get; private set; }
 
-        public Vector3 topRight;
+        public Vector3 topRight { get; private set; }
 
-        public Vector3 bottomRight;
+        public Vector3 bottomRight { get; private set; }
 
-        public Plane plane;
+        public Plane plane { get; private set; }
     }
 
     public struct VirtualCameraData : IEquatable<VirtualCameraData>
     {
-        public Vector3 position;
-        public Quaternion rotation;
+        public float posX, posY, posZ;
+        public float quatX, quatY, quatZ, quatW;
         public bool isOffCenter;
         public bool isOrthographic;
         public float size;
@@ -63,15 +86,17 @@ namespace E.Rendering
         public float near;
         public float far;
 
-        public override bool Equals(object obj)
-        {
-            return obj is VirtualCameraData data && Equals(data);
-        }
+        public override bool Equals(object obj) => obj is VirtualCameraData data && Equals(data);
 
         public bool Equals(VirtualCameraData other)
         {
-            return position.Equals(other.position) &&
-                   rotation.Equals(other.rotation) &&
+            return posX == other.posX &&
+                   posY == other.posY &&
+                   posZ == other.posZ &&
+                   quatX == other.quatX &&
+                   quatY == other.quatY &&
+                   quatZ == other.quatZ &&
+                   quatW == other.quatW &&
                    isOffCenter == other.isOffCenter &&
                    isOrthographic == other.isOrthographic &&
                    size == other.size &&
@@ -87,9 +112,14 @@ namespace E.Rendering
 
         public override int GetHashCode()
         {
-            int hashCode = 931829884;
-            hashCode = hashCode * -1521134295 + position.GetHashCode();
-            hashCode = hashCode * -1521134295 + rotation.GetHashCode();
+            int hashCode = -169264683;
+            hashCode = hashCode * -1521134295 + posX.GetHashCode();
+            hashCode = hashCode * -1521134295 + posY.GetHashCode();
+            hashCode = hashCode * -1521134295 + posZ.GetHashCode();
+            hashCode = hashCode * -1521134295 + quatX.GetHashCode();
+            hashCode = hashCode * -1521134295 + quatY.GetHashCode();
+            hashCode = hashCode * -1521134295 + quatZ.GetHashCode();
+            hashCode = hashCode * -1521134295 + quatW.GetHashCode();
             hashCode = hashCode * -1521134295 + isOffCenter.GetHashCode();
             hashCode = hashCode * -1521134295 + isOrthographic.GetHashCode();
             hashCode = hashCode * -1521134295 + size.GetHashCode();
@@ -104,15 +134,9 @@ namespace E.Rendering
             return hashCode;
         }
 
-        public static bool operator ==(VirtualCameraData left, VirtualCameraData right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(VirtualCameraData left, VirtualCameraData right) => left.Equals(right);
 
-        public static bool operator !=(VirtualCameraData left, VirtualCameraData right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(VirtualCameraData left, VirtualCameraData right) => !(left == right);
     }
 
     public unsafe struct VirtualCamera : IDisposable, IEquatable<VirtualCamera>
@@ -123,129 +147,104 @@ namespace E.Rendering
 
         private const float MAX_FOV = 179.99f;
 
+        private IntPtr m_DataAddress;
+
+        private IntPtr m_StateAddress;
+
         private VirtualCameraData* m_Data;
 
         private bool* m_IsDirty;
 
-        public bool IsCreated { get => m_Data != null; }
+        public bool IsCreated { get => m_DataAddress != IntPtr.Zero; }
 
-        public void Dispose()
+        public VirtualCamera(bool isOrthographic, float size, float fov, float aspect, float near, float far)
         {
-            m_Data = null;
-            m_IsDirty = null;
+            m_DataAddress = Marshal.AllocHGlobal(Marshal.SizeOf<VirtualCameraData>());
+            m_Data = (VirtualCameraData*)m_DataAddress.ToPointer();
+            *m_Data = new VirtualCameraData();
+            m_StateAddress = Marshal.AllocHGlobal(Marshal.SizeOf<bool>());
+            m_IsDirty = (bool*)m_StateAddress.ToPointer();
+            *m_IsDirty = true;
+            rotation = Quaternion.identity;
+            position = Vector3.zero;
+            isOffCenter = false;
+            this.isOrthographic = isOrthographic;
+            this.near = near;
+            this.far = far;
+            this.size = size;
+            this.fov = fov;
+            this.aspect = aspect;
+            left = 1;
+            right = 1;
+            bottom = 1;
+            top = 1;
+        }
+
+        public VirtualCamera(bool isOrthographic, float left, float right, float bottom, float top, float near, float far)
+        {
+            m_DataAddress = Marshal.AllocHGlobal(Marshal.SizeOf<VirtualCameraData>());
+            m_Data = (VirtualCameraData*)m_DataAddress.ToPointer();
+            *m_Data = new VirtualCameraData();
+            m_StateAddress = Marshal.AllocHGlobal(Marshal.SizeOf<bool>());
+            m_IsDirty = (bool*)m_StateAddress.ToPointer();
+            *m_IsDirty = true;
+            rotation = Quaternion.identity;
+            position = Vector3.zero;
+            isOffCenter = true;
+            this.isOrthographic = isOrthographic;
+            this.near = near;
+            this.far = far;
+            this.left = left;
+            this.right = right;
+            this.bottom = bottom;
+            this.top = top;
+            size = 5;
+            fov = 45;
+            aspect = 1;
         }
 
         public VirtualCamera(Camera camera)
         {
-            VirtualCameraData value = new VirtualCameraData();
-            m_Data = &value;
-            bool isDirty = false;
-            m_IsDirty = &isDirty;
+            m_DataAddress = Marshal.AllocHGlobal(Marshal.SizeOf<VirtualCameraData>());
+            m_Data = (VirtualCameraData*)m_DataAddress.ToPointer();
+            *m_Data = new VirtualCameraData();
+            m_StateAddress = Marshal.AllocHGlobal(Marshal.SizeOf<bool>());
+            m_IsDirty = (bool*)m_StateAddress.ToPointer();
+            *m_IsDirty = true;
+            rotation = Quaternion.identity;
+            position = Vector3.zero;
+            left = 1;
+            right = 1;
+            bottom = 1;
+            top = 1;
             SetProperties(camera);
-        }
-
-        public VirtualCamera(bool isOrthographic,
-            float size, float fov, float aspect,
-            float near, float far)
-        {
-            VirtualCameraData value = new VirtualCameraData();
-            m_Data = &value;
-            bool isDirty = false;
-            m_IsDirty = &isDirty;
-            SetProperties(isOrthographic, size, fov, aspect, near, far);
-        }
-
-        public VirtualCamera(bool isOrthographic,
-            float left, float right, float bottom, float top,
-            float near, float far)
-        {
-            VirtualCameraData value = new VirtualCameraData();
-            m_Data = &value;
-            bool isDirty = false;
-            m_IsDirty = &isDirty;
-            SetProperties(isOrthographic, left, right, bottom, top, near, far);
-        }
-
-        public ref VirtualCameraData GetRefData()
-        {
-            return ref *m_Data;
-        }
-
-        public VirtualCameraData* GetData()
-        {
-            return m_Data;
-        }
-
-        public void SetTransform(Vector3 position, Quaternion rotation)
-        {
-            *m_IsDirty = true;
-            m_Data->position = position;
-            m_Data->rotation = rotation;
-        }
-
-        public void SetProperties(Camera camera)
-        {
-            SetProperties(camera.orthographic,
-                camera.orthographicSize, camera.fieldOfView, camera.aspect, camera.nearClipPlane, camera.farClipPlane);
-        }
-
-        public void SetProperties(bool isOrthographic,
-            float size, float fov, float aspect,
-            float near, float far)
-        {
-            *m_IsDirty = true;
-            m_Data->isOffCenter = false;
-            m_Data->isOrthographic = isOrthographic;
-            m_Data->size = size;
-            m_Data->fov = fov;
-            m_Data->aspect = aspect;
-            m_Data->near = near;
-            m_Data->far = far;
-            MinValue(ref m_Data->size);
-            MinMaxFOV();
-            MinValue(ref m_Data->aspect);
-            MinMaxNearAndFar();
-            CommitLRBT();
-        }
-
-        public void SetProperties(bool isOrthographic,
-            float left, float right, float bottom, float top,
-            float near, float far)
-        {
-            *m_IsDirty = true;
-            m_Data->isOffCenter = true;
-            m_Data->isOrthographic = isOrthographic;
-            m_Data->left = left;
-            m_Data->right = right;
-            m_Data->bottom = bottom;
-            m_Data->top = top;
-            m_Data->near = near;
-            m_Data->far = far;
-            MinValue(ref m_Data->left);
-            MinValue(ref m_Data->right);
-            MinValue(ref m_Data->bottom);
-            MinValue(ref m_Data->top);
-            MinMaxNearAndFar();
-            CommitLRBT();
         }
 
         public bool isDirty { get { return *m_IsDirty; } set { *m_IsDirty = value; } }
 
         public Vector3 position
         {
-            get { return m_Data->position; }
+            get { return new Vector3(m_Data->posX, m_Data->posY, m_Data->posZ); }
             set
             {
-                SetDirtyIfChanged(ref m_Data->position, value);
+                if (m_Data->posX != value.x || m_Data->posY != value.y || m_Data->posZ != value.z)
+                {
+                    m_Data->posX = value.x; m_Data->posY = value.y; m_Data->posZ = value.z;
+                    *m_IsDirty = true;
+                }
             }
         }
 
         public Quaternion rotation
         {
-            get { return m_Data->rotation; }
+            get { return new Quaternion(m_Data->quatX, m_Data->quatY, m_Data->quatZ, m_Data->quatW); }
             set
             {
-                SetDirtyIfChanged(ref m_Data->rotation, value);
+                if (m_Data->quatX != value.x || m_Data->quatY != value.y || m_Data->quatZ != value.z || m_Data->quatW != value.w)
+                {
+                    m_Data->quatX = value.x; m_Data->quatY = value.y; m_Data->quatZ = value.z; m_Data->quatW = value.w;
+                    *m_IsDirty = true;
+                }
             }
         }
 
@@ -254,8 +253,11 @@ namespace E.Rendering
             get { return m_Data->isOffCenter; }
             set
             {
-                SetDirtyIfChanged(ref m_Data->isOffCenter, value);
-                CommitLRBT();
+                if (m_Data->isOffCenter != value)
+                {
+                    m_Data->isOffCenter = value;
+                    *m_IsDirty = true;
+                }
             }
         }
 
@@ -264,9 +266,12 @@ namespace E.Rendering
             get { return m_Data->isOrthographic; }
             set
             {
-                SetDirtyIfChanged(ref m_Data->isOrthographic, value);
-                MinMaxNearAndFar();
-                CommitLRBT();
+                if (m_Data->isOrthographic != value)
+                {
+                    m_Data->isOrthographic = value;
+                    MinMaxNearAndFar();
+                    *m_IsDirty = true;
+                }
             }
         }
 
@@ -275,10 +280,12 @@ namespace E.Rendering
             get { return m_Data->size; }
             set
             {
-                m_Data->isOffCenter = false;
-                SetDirtyIfChanged(ref m_Data->size, value);
-                MinValue(ref m_Data->size);
-                CommitLRBT();
+                if (m_Data->size != value)
+                {
+                    m_Data->size = value;
+                    MinValue(ref m_Data->size);
+                    *m_IsDirty = true;
+                }
             }
         }
 
@@ -287,10 +294,12 @@ namespace E.Rendering
             get { return m_Data->fov; }
             set
             {
-                m_Data->isOffCenter = false;
-                SetDirtyIfChanged(ref m_Data->fov, value);
-                MinMaxFOV();
-                CommitLRBT();
+                if (m_Data->fov != value)
+                {
+                    m_Data->fov = value;
+                    MinMaxFOV();
+                    *m_IsDirty = true;
+                }
             }
         }
 
@@ -299,109 +308,97 @@ namespace E.Rendering
             get { return m_Data->aspect; }
             set
             {
-                m_Data->isOffCenter = false;
-                SetDirtyIfChanged(ref m_Data->aspect, value);
-                MinValue(ref m_Data->aspect);
-                CommitLRBT();
+                if (m_Data->aspect != value)
+                {
+                    m_Data->aspect = value;
+                    MinValue(ref m_Data->aspect);
+                    *m_IsDirty = true;
+                }
             }
         }
 
         public float left
         {
             get { return m_Data->left; }
-            set { SetNearSideDistance(ref m_Data->left, value); }
+            set
+            {
+                if (m_Data->left != value)
+                {
+                    m_Data->left = value;
+                    MinValue(ref m_Data->left);
+                    *m_IsDirty = true;
+                }
+            }
         }
 
         public float right
         {
             get { return m_Data->right; }
-            set { SetNearSideDistance(ref m_Data->right, value); }
+            set
+            {
+                if (m_Data->right != value)
+                {
+                    m_Data->right = value;
+                    MinValue(ref m_Data->right);
+                    *m_IsDirty = true;
+                }
+            }
         }
 
         public float bottom
         {
             get { return m_Data->bottom; }
-            set { SetNearSideDistance(ref m_Data->bottom, value); }
+            set
+            {
+                if (m_Data->bottom != value)
+                {
+                    m_Data->bottom = value;
+                    MinValue(ref m_Data->bottom);
+                    *m_IsDirty = true;
+                }
+            }
         }
 
         public float top
         {
             get { return m_Data->top; }
-            set { SetNearSideDistance(ref m_Data->top, value); }
+            set
+            {
+                if (m_Data->top != value)
+                {
+                    m_Data->top = value;
+                    MinValue(ref m_Data->top);
+                    *m_IsDirty = true;
+                }
+            }
         }
 
         public float near
         {
             get { return m_Data->near; }
-            set { SetNearFar(ref m_Data->near, value); }
+            set
+            {
+                if (m_Data->near != value)
+                {
+                    m_Data->near = value;
+                    MinMaxNearAndFar();
+                    *m_IsDirty = true;
+                }
+            }
         }
 
         public float far
         {
             get { return m_Data->far; }
-            set { SetNearFar(ref m_Data->far, value); }
-        }
-
-        private void SetNearSideDistance(ref float d, float value)
-        {
-            m_Data->isOffCenter = true;
-            SetDirtyIfChanged(ref d, value);
-            MinValue(ref d);
-        }
-
-        private void SetNearFar(ref float d, in float value)
-        {
-            SetDirtyIfChanged(ref d, value);
-            MinMaxNearAndFar();
-            CommitLRBT();
-        }
-
-        private void MinMaxNearAndFar()
-        {
-            if (!m_Data->isOrthographic)
+            set
             {
-                MinValue(ref m_Data->near);
+                if (m_Data->far != value)
+                {
+                    m_Data->far = value;
+                    MinMaxNearAndFar();
+                    *m_IsDirty = true;
+                }
             }
-            if (m_Data->far <= m_Data->near) m_Data->far = m_Data->near + MIN_VALUE;
-        }
-
-        private void CommitLRBT()
-        {
-            if (m_Data->isOffCenter) return;
-            float x, y;
-            if (m_Data->isOrthographic)
-            {
-                y = m_Data->size;
-                x = y * m_Data->aspect;
-            }
-            else
-            {
-                //degree to radians: r = d * 0.01745329251994329576923690768489
-                //half radians: r *= 0.5
-                y = (float)(m_Data->near * Math.Tan(0.00872664625997164788461845384244 * fov));
-                x = y * aspect;
-            }
-            m_Data->left = -x;
-            m_Data->right = x;
-            m_Data->bottom = -y;
-            m_Data->top = y;
-        }
-
-        private void SetDirtyIfChanged<T>(ref T a, in T b) where T : System.IEquatable<T>
-        {
-            if (!a.Equals(b)) *m_IsDirty = true;
-            a = b;
-        }
-
-        private void MinMaxFOV()
-        {
-            if (m_Data->fov < MIN_FOV) m_Data->fov = MIN_FOV;
-            if (m_Data->fov > MAX_FOV) m_Data->fov = MAX_FOV;
-        }
-
-        private void MinValue(ref float val)
-        {
-            if (val < MIN_VALUE) val = MIN_VALUE;
         }
 
         public Matrix4x4 worldToViewMatrix
@@ -423,46 +420,95 @@ namespace E.Rendering
             {
                 if (isOrthographic)
                 {
-                    return Matrix4x4.Ortho(-left, right, -bottom, top, near, far);
+                    if (isOffCenter)
+                    {
+                        return Matrix4x4.Ortho(-left, right, -bottom, top, near, far);
+                    }
+                    else
+                    {
+                        float y = size * 0.5f;
+                        float x = y * aspect;
+                        return Matrix4x4.Ortho(-x, x, -y, y, near, far);
+                    }
                 }
                 else
                 {
-                    return Matrix4x4.Frustum(-left, right, -bottom, top, near, far);
+                    if (isOffCenter)
+                    {
+                        return Matrix4x4.Frustum(-left, right, -bottom, top, near, far);
+                    }
+                    else
+                    {
+                        return Matrix4x4.Perspective(fov, aspect, near, far);
+                    }
                 }
             }
         }
 
-        public Matrix4x4 cullingMatrix
-        { get { return projectionMatrix * worldToViewMatrix; } }
+        public Matrix4x4 cullingMatrix { get => projectionMatrix * worldToViewMatrix; }
 
-        public CameraPlane GetPlane(float distance)
+        public ref VirtualCameraData GetRefData() => ref *m_Data;
+
+        public VirtualCameraData* GetData() => m_Data;
+
+        public CameraPlane GetPlane(float distance) => new CameraPlane(this, distance);
+
+        public void SetProperties(Camera camera)
         {
-            return new CameraPlane(this, distance);
+            isOffCenter = false;
+            isOrthographic = camera.orthographic;
+            size = camera.orthographicSize * 2;
+            fov = camera.fieldOfView;
+            aspect = camera.aspect;
+            near = camera.nearClipPlane;
+            far = camera.farClipPlane;
         }
 
-        public override bool Equals(object obj)
+        public void Dispose()
         {
-            return obj is VirtualCamera camera && Equals(camera);
+            Release(ref m_DataAddress);
+            Release(ref m_StateAddress);
+            m_Data = null;
+            m_IsDirty = null;
         }
 
-        public bool Equals(VirtualCamera other)
+        private void MinMaxNearAndFar()
         {
-            return m_Data->Equals(*other.m_Data);
+            if (!m_Data->isOrthographic)
+            {
+                MinValue(ref m_Data->near);
+            }
+            if (m_Data->far <= m_Data->near) m_Data->far = m_Data->near + MIN_VALUE;
         }
 
-        public override int GetHashCode()
+        private void MinMaxFOV()
         {
-            return m_Data->GetHashCode();
+            if (m_Data->fov < MIN_FOV) m_Data->fov = MIN_FOV;
+            if (m_Data->fov > MAX_FOV) m_Data->fov = MAX_FOV;
         }
 
-        public static bool operator ==(VirtualCamera left, VirtualCamera right)
+        private void MinValue(ref float val)
         {
-            return left.Equals(right);
+            if (val < MIN_VALUE) val = MIN_VALUE;
         }
 
-        public static bool operator !=(VirtualCamera left, VirtualCamera right)
+        private void Release(ref IntPtr ptr)
         {
-            return !(left == right);
+            if (ptr != IntPtr.Zero)
+            {
+                Marshal.Release(ptr);
+                ptr = IntPtr.Zero;
+            }
         }
+
+        public override bool Equals(object obj) => obj is VirtualCamera camera && Equals(camera);
+
+        public bool Equals(VirtualCamera other) => m_Data->Equals(*other.m_Data);
+
+        public override int GetHashCode() => m_Data->GetHashCode();
+
+        public static bool operator ==(VirtualCamera left, VirtualCamera right) => left.Equals(right);
+
+        public static bool operator !=(VirtualCamera left, VirtualCamera right) => !(left == right);
     }
 }

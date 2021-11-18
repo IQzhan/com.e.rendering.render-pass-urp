@@ -12,22 +12,22 @@ namespace E.Test
     {
         protected override bool IsEnabled => true;
 
-        private struct VirtualCameraData
-        {
-            public Vector3 position;
-            public Quaternion rotation;
-            public bool isOffCenter;
-            public bool isOrthographic;
-            public float size;
-            public float fov;
-            public float aspect;
-            public float left;
-            public float right;
-            public float bottom;
-            public float top;
-            public float near;
-            public float far;
-        }
+        //private struct VirtualCameraData
+        //{
+        //    public Vector3 position;
+        //    public Quaternion rotation;
+        //    public bool isOffCenter;
+        //    public bool isOrthographic;
+        //    public float size;
+        //    public float fov;
+        //    public float aspect;
+        //    public float left;
+        //    public float right;
+        //    public float bottom;
+        //    public float top;
+        //    public float near;
+        //    public float far;
+        //}
 
         private struct EmptyData { }
 
@@ -37,28 +37,15 @@ namespace E.Test
             public bool b;
         }
 
-        private unsafe struct VTest : IDisposable
-        {
-            private VirtualCameraData* data;
-
-            public void Create()
-            {
-                *data = new VirtualCameraData();
-            }
-
-            public void Dispose()
-            {
-                data = null;
-            }
-        }
 
         protected override void OnAwake()
         {
-            PrintSize<RenderTargetHandle>();
-            PrintSize<VirtualCamera>();
+            //PrintSize<RenderTargetHandle>();
+            //PrintSize<VirtualCamera>();
             //PrintSize<EmptyData>();
             //PrintSize<BoolData>();
             //PrintConvert();
+
         }
 
         private unsafe void PrintConvert()
