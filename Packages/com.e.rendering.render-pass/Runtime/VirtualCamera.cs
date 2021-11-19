@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace E.Rendering
 {
+    /// <summary>
+    /// Calculate four vertex at virtual camera's clip plane.
+    /// </summary>
     public struct CameraClipPlane
     {
         public CameraClipPlane(VirtualCamera camera, float distance)
@@ -31,11 +34,6 @@ namespace E.Rendering
             plane = new Plane(bottomLeft, topLeft, topRight);
         }
 
-        public static CameraClipPlane GetPlane(VirtualCamera camera, float distance)
-        {
-            return new CameraClipPlane(camera, distance);
-        }
-
         public float distance { get; private set; }
 
         public Vector3 bottomLeft { get; private set; }
@@ -49,6 +47,9 @@ namespace E.Rendering
         public Plane plane { get; private set; }
     }
 
+    /// <summary>
+    /// Inner data of virtual camera.
+    /// </summary>
     public struct VirtualCameraData : IEquatable<VirtualCameraData>
     {
         public int id { get; internal set; }
@@ -91,6 +92,9 @@ namespace E.Rendering
         public static bool operator !=(VirtualCameraData left, VirtualCameraData right) => !(left == right);
     }
 
+    /// <summary>
+    /// Pure camera data for rendering or others that does not need real camera.
+    /// </summary>
     public unsafe struct VirtualCamera : IDisposable, IEquatable<VirtualCamera>
     {
         private const float MIN_VALUE = 0.00001f;
@@ -111,8 +115,22 @@ namespace E.Rendering
 
         private static void GetNewID(VirtualCameraData* data) => data->id = Interlocked.Increment(ref m_IdOrder);
 
+        /// <summary>
+        /// Is this virtual camera created?
+        /// </summary>
         public bool IsCreated { get => m_DataAddress != IntPtr.Zero; }
 
+        /// <summary>
+        /// Create a virtual camera.
+        /// </summary>
+        /// <param name="isOrthographic"></param>
+        /// <param name="size"></param>
+        /// <param name="fov"></param>
+        /// <param name="aspect"></param>
+        /// <param name="near"></param>
+        /// <param name="far"></param>
+        /// <param name="shiftX"></param>
+        /// <param name="shiftY"></param>
         public VirtualCamera(bool isOrthographic,
             float size, float fov, float aspect, float near, float far,
             float shiftX = 0, float shiftY = 0)
@@ -136,6 +154,10 @@ namespace E.Rendering
             this.shiftY = shiftY;
         }
 
+        /// <summary>
+        /// Create a virtual camera by UnityEngine.Camera and set the same properties.
+        /// </summary>
+        /// <param name="camera"></param>
         public VirtualCamera(Camera camera)
         {
             m_DataAddress = Marshal.AllocHGlobal(Marshal.SizeOf<VirtualCameraData>());
@@ -150,8 +172,20 @@ namespace E.Rendering
             SetProperties(camera);
         }
 
+        /// <summary>
+        /// Runtime id, dont save it.
+        /// </summary>
+        public int id => m_Data->id;
+
+        /// <summary>
+        /// Mark true if properties has changed,
+        /// need to set false by yourself.
+        /// </summary>
         public bool isDirty { get => *m_IsDirty; set => *m_IsDirty = value; }
 
+        /// <summary>
+        /// Position of this virtual camera.
+        /// </summary>
         public Vector3 position
         {
             get => new Vector3(m_Data->posX, m_Data->posY, m_Data->posZ);
@@ -165,6 +199,9 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// Rotation of this virtual camera.
+        /// </summary>
         public Quaternion rotation
         {
             get => new Quaternion(m_Data->quatX, m_Data->quatY, m_Data->quatZ, m_Data->quatW);
@@ -178,6 +215,9 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// Is the camera orthographic (true) or perspective (false)?
+        /// </summary>
         public bool isOrthographic
         {
             get => m_Data->isOrthographic;
@@ -192,6 +232,10 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// Vertical size in orthographic mode,
+        /// It is near clip plane's height.
+        /// </summary>
         public float size
         {
             get => m_Data->size;
@@ -206,6 +250,10 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// Gate fitted vertical angle in degree of field of view in perspective mode.
+        /// see <see cref="Camera.GetGateFittedFieldOfView"/>
+        /// </summary>
         public float fov
         {
             get => m_Data->fov;
@@ -220,6 +268,9 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// The aspect ratio (width divided by height).
+        /// </summary>
         public float aspect
         {
             get => m_Data->aspect;
@@ -234,6 +285,9 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// The distance of the near clipping plane from the the Camera, in world units.
+        /// </summary>
         public float near
         {
             get => m_Data->near;
@@ -248,6 +302,9 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// The distance of the far clipping plane from the Camera, in world units.
+        /// </summary>
         public float far
         {
             get => m_Data->far;
@@ -262,6 +319,10 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// Gate fitted lens shift x,
+        /// see <see cref="Camera.GetGateFittedLensShift"/>
+        /// </summary>
         public float shiftX
         {
             get => m_Data->shiftX;
@@ -275,6 +336,10 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// Gate fitted lens shift y,
+        /// see <see cref="Camera.GetGateFittedLensShift"/>
+        /// </summary>
         public float shiftY
         {
             get => m_Data->shiftY;
@@ -288,21 +353,33 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// Left side's x coordinate value at near clip plane in view sapce.
+        /// </summary>
         public float left
         {
             get => NearX * (-1 + 2 * shiftX);
         }
 
+        /// <summary>
+        /// Right side's x coordinate value at near clip plane in view space.
+        /// </summary>
         public float right
         {
             get => NearX * (1 + 2 * shiftX);
         }
 
+        /// <summary>
+        /// Bottom side's y coordinate value at near clip plane in view space.
+        /// </summary>
         public float bottom
         {
             get => NearY * (-1 + 2 * shiftY);
         }
 
+        /// <summary>
+        /// Top side's y coordinate value at near clip plane in view space.
+        /// </summary>
         public float top
         {
             get => NearY * (1 + 2 * shiftY);
@@ -336,14 +413,34 @@ namespace E.Rendering
             }
         }
 
+        /// <summary>
+        /// projectionMatrix * worldToViewMatrix
+        /// </summary>
         public Matrix4x4 cullingMatrix { get => projectionMatrix * worldToViewMatrix; }
 
+        /// <summary>
+        /// Get inner data by ref.
+        /// </summary>
+        /// <returns></returns>
         public ref VirtualCameraData GetRefData() => ref *m_Data;
 
+        /// <summary>
+        /// Get inner data by pointer.
+        /// </summary>
+        /// <returns></returns>
         public VirtualCameraData* GetData() => m_Data;
 
+        /// <summary>
+        /// Get clip plane's four vertex.
+        /// </summary>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         public CameraClipPlane GetClipPlane(float distance) => new CameraClipPlane(this, distance);
 
+        /// <summary>
+        /// Use camera's properties.
+        /// </summary>
+        /// <param name="camera"></param>
         public void SetProperties(Camera camera)
         {
             isOrthographic = camera.orthographic;
@@ -363,6 +460,9 @@ namespace E.Rendering
 #endif
         }
 
+        /// <summary>
+        /// Must Dispose this virtual camera data if no needed.
+        /// </summary>
         public void Dispose()
         {
             Release(ref m_DataAddress);
