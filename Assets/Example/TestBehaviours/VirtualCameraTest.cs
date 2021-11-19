@@ -46,33 +46,43 @@ namespace E.Test
 
         }
 
+        private Vector3[] linePoints;
+
         private void OnDrawGizmos()
         {
             if (virtualCamera.IsCreated)
             {
                 CameraClipPlane plane0 = virtualCamera.GetClipPlane(virtualCamera.near);
                 CameraClipPlane plane1 = virtualCamera.GetClipPlane(virtualCamera.far);
-                Handles.color = Color.red;
-                DrawPlane(plane0.bottomLeft, plane0.topLeft, plane0.topRight, plane0.bottomRight);
-                DrawPlane(plane1.bottomLeft, plane1.topLeft, plane1.topRight, plane1.bottomRight);
-                DrawLine(plane0.bottomLeft, plane1.bottomLeft);
-                DrawLine(plane0.topLeft, plane1.topLeft);
-                DrawLine(plane0.topRight, plane1.topRight);
-                DrawLine(plane0.bottomRight, plane1.bottomRight);
+                Handles.color = Color.green;
+                Handles.Label(virtualCamera.position, $"{virtualCamera.position}");
+                if(linePoints == null || linePoints.Length < 24)
+                { linePoints = new Vector3[24]; }
+                SetPlanePoints(0, plane0.bottomLeft, plane0.topLeft, plane0.topRight, plane0.bottomRight);
+                SetPlanePoints(8, plane1.bottomLeft, plane1.topLeft, plane1.topRight, plane1.bottomRight);
+                linePoints[16] = plane0.bottomLeft;
+                linePoints[17] = plane1.bottomLeft;
+                linePoints[18] = plane0.topLeft;
+                linePoints[19] = plane1.topLeft;
+                linePoints[20] = plane0.topRight;
+                linePoints[21] = plane1.topRight;
+                linePoints[22] = plane0.bottomRight;
+                linePoints[23] = plane1.bottomRight;
+                Handles.DrawLines(linePoints);
             }
         }
 
-        private void DrawPlane(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3)
+        private void SetPlanePoints(int index, Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3)
         {
-            Handles.DrawLine(v0, v1);
-            Handles.DrawLine(v1, v2);
-            Handles.DrawLine(v2, v3);
-            Handles.DrawLine(v3, v0);
+            linePoints[index + 0] = v0;
+            linePoints[index + 1] = v1;
+            linePoints[index + 2] = v1;
+            linePoints[index + 3] = v2;
+            linePoints[index + 4] = v2;
+            linePoints[index + 5] = v3;
+            linePoints[index + 6] = v3;
+            linePoints[index + 7] = v0;
         }
 
-        private void DrawLine(Vector3 from, Vector3 to)
-        {
-            Handles.DrawLine(from, to);
-        }
     }
 }
