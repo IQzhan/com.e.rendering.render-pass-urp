@@ -43,7 +43,7 @@ namespace E.Test
         protected override void OnDestroy()
         {
             Debug.Log("Destroy camera test");
-            
+
         }
 
         private void OnDrawGizmos()

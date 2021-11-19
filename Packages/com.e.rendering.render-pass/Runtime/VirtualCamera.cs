@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using UnityEngine;
 
 namespace E.Rendering
@@ -50,6 +51,7 @@ namespace E.Rendering
 
     public struct VirtualCameraData : IEquatable<VirtualCameraData>
     {
+        public int id { get; internal set; }
         public float posX, posY, posZ;
         public float quatX, quatY, quatZ, quatW;
         public bool isOrthographic;
@@ -82,26 +84,7 @@ namespace E.Rendering
                    shiftY == other.shiftY;
         }
 
-        public override int GetHashCode()
-        {
-            int hashCode = 2119909114;
-            hashCode = hashCode * -1521134295 + posX.GetHashCode();
-            hashCode = hashCode * -1521134295 + posY.GetHashCode();
-            hashCode = hashCode * -1521134295 + posZ.GetHashCode();
-            hashCode = hashCode * -1521134295 + quatX.GetHashCode();
-            hashCode = hashCode * -1521134295 + quatY.GetHashCode();
-            hashCode = hashCode * -1521134295 + quatZ.GetHashCode();
-            hashCode = hashCode * -1521134295 + quatW.GetHashCode();
-            hashCode = hashCode * -1521134295 + isOrthographic.GetHashCode();
-            hashCode = hashCode * -1521134295 + size.GetHashCode();
-            hashCode = hashCode * -1521134295 + fov.GetHashCode();
-            hashCode = hashCode * -1521134295 + aspect.GetHashCode();
-            hashCode = hashCode * -1521134295 + near.GetHashCode();
-            hashCode = hashCode * -1521134295 + far.GetHashCode();
-            hashCode = hashCode * -1521134295 + shiftX.GetHashCode();
-            hashCode = hashCode * -1521134295 + shiftY.GetHashCode();
-            return hashCode;
-        }
+        public override int GetHashCode() => id;
 
         public static bool operator ==(VirtualCameraData left, VirtualCameraData right) => left.Equals(right);
 
@@ -110,11 +93,11 @@ namespace E.Rendering
 
     public unsafe struct VirtualCamera : IDisposable, IEquatable<VirtualCamera>
     {
-        private const float MIN_VALUE = 0.01f;
+        private const float MIN_VALUE = 0.00001f;
 
-        private const float MIN_FOV = 0.01f;
+        private const float MIN_FOV = 0.00001f;
 
-        private const float MAX_FOV = 179.99f;
+        private const float MAX_FOV = 179f;
 
         private IntPtr m_DataAddress;
 
@@ -124,13 +107,20 @@ namespace E.Rendering
 
         private bool* m_IsDirty;
 
+        private static int m_IdOrder = 0;
+
+        private static void GetNewID(VirtualCameraData* data) => data->id = Interlocked.Increment(ref m_IdOrder);
+
         public bool IsCreated { get => m_DataAddress != IntPtr.Zero; }
 
-        public VirtualCamera(bool isOrthographic, float size, float fov, float aspect, float near, float far, float shiftX = 0, float shiftY = 0)
+        public VirtualCamera(bool isOrthographic,
+            float size, float fov, float aspect, float near, float far,
+            float shiftX = 0, float shiftY = 0)
         {
             m_DataAddress = Marshal.AllocHGlobal(Marshal.SizeOf<VirtualCameraData>());
             m_Data = (VirtualCameraData*)m_DataAddress.ToPointer();
             *m_Data = new VirtualCameraData();
+            GetNewID(m_Data);
             m_StateAddress = Marshal.AllocHGlobal(Marshal.SizeOf<bool>());
             m_IsDirty = (bool*)m_StateAddress.ToPointer();
             *m_IsDirty = true;
@@ -151,6 +141,7 @@ namespace E.Rendering
             m_DataAddress = Marshal.AllocHGlobal(Marshal.SizeOf<VirtualCameraData>());
             m_Data = (VirtualCameraData*)m_DataAddress.ToPointer();
             *m_Data = new VirtualCameraData();
+            GetNewID(m_Data);
             m_StateAddress = Marshal.AllocHGlobal(Marshal.SizeOf<bool>());
             m_IsDirty = (bool*)m_StateAddress.ToPointer();
             *m_IsDirty = true;
@@ -357,19 +348,16 @@ namespace E.Rendering
         {
             isOrthographic = camera.orthographic;
             size = camera.orthographicSize * 2;
-            fov = camera.fieldOfView;
             aspect = camera.aspect;
             near = camera.nearClipPlane;
             far = camera.farClipPlane;
 #if UNITY_2018_2_OR_NEWER
-            Vector2 lensShift = camera.lensShift;
+            fov = camera.GetGateFittedFieldOfView();
+            Vector2 lensShift = camera.GetGateFittedLensShift();
             shiftX = lensShift.x;
             shiftY = lensShift.y;
-            //TODO 
-            //Vector2 sensorSize = camera.sensorSize;
-            //sensorX = sensorSize.x;
-            //sensorY = sensorSize.y;
 #else
+            fov = camera.fieldOfView;
             shiftX = 0;
             shiftY = 0;
 #endif
