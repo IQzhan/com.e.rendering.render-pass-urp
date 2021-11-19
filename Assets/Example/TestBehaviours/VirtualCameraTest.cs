@@ -29,6 +29,8 @@ namespace E.Test
 
         protected override void OnUpdate()
         {
+            Debug.Log("OnUpdate");
+            realCamera = Camera.main;
             virtualCamera.SetProperties(realCamera);
             virtualCamera.position = realCamera.transform.position;
             virtualCamera.rotation = realCamera.transform.rotation;
@@ -42,7 +44,6 @@ namespace E.Test
 
         protected override void OnDestroy()
         {
-            Debug.Log("Destroy camera test");
 
         }
 

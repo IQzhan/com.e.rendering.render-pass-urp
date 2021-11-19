@@ -118,7 +118,7 @@ namespace E.Rendering
         /// <summary>
         /// Is this virtual camera created?
         /// </summary>
-        public bool IsCreated { get => m_DataAddress != IntPtr.Zero; }
+        public bool IsCreated { get => m_Data != null; }
 
         /// <summary>
         /// Create a virtual camera.
@@ -515,7 +515,7 @@ namespace E.Rendering
         {
             if (ptr != IntPtr.Zero)
             {
-                Marshal.Release(ptr);
+                Marshal.FreeHGlobal(ptr);
                 ptr = IntPtr.Zero;
             }
         }

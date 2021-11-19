@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95da77224beeb984c8c37f1d7aac9b97, type: 3}
   m_Name: BehaviourSettings
   m_EditorClassIdentifier: 
-  m_DeltaTime: 0
+  m_DeltaTime: 0.001
   m_Method: 0
   m_AllowLog: 0
   m_AllowLogError: 1
