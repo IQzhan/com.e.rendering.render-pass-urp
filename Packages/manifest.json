@@ -1,7 +1,6 @@
 {
   "dependencies": {
-    "com.e.collections": "git://github.com/IQzhan/Collections_Of_Unity_NativeArray.git#upm",
-    "com.e.global": "git://github.com/IQzhan/com.e.global.git#v1.0.4",
+    "com.e.global": "git://github.com/IQzhan/com.e.global.git#v1.0.5",
     "com.unity.collab-proxy": "1.13.5",
     "com.unity.ide.rider": "3.0.7",
     "com.unity.ide.visualstudio": "2.0.12",

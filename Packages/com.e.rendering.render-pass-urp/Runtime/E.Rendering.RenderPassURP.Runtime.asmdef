@@ -1,5 +1,5 @@
 {
-    "name": "E.Rendering.RenderPass.Runtime",
+    "name": "E.Rendering.RenderPassURP.Runtime",
     "rootNamespace": "E.Rendering",
     "references": [
         "Unity.RenderPipelines.Core.Runtime",

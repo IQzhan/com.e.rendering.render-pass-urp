@@ -16,7 +16,7 @@ namespace E.Test
 
         protected override void OnAwake()
         {
-            
+
         }
 
         protected override void OnEnable()
@@ -29,8 +29,7 @@ namespace E.Test
 
         protected override void OnUpdate()
         {
-            Debug.Log("OnUpdate");
-            realCamera = Camera.main;
+            if (realCamera == null) realCamera = Camera.main;
             virtualCamera.SetProperties(realCamera);
             virtualCamera.position = realCamera.transform.position;
             virtualCamera.rotation = realCamera.transform.rotation;
@@ -57,7 +56,7 @@ namespace E.Test
                 CameraClipPlane plane1 = virtualCamera.GetClipPlane(virtualCamera.far);
                 Handles.color = Color.green;
                 Handles.Label(virtualCamera.position, $"{virtualCamera.position}");
-                if(linePoints == null || linePoints.Length < 24)
+                if (linePoints == null || linePoints.Length < 24)
                 { linePoints = new Vector3[24]; }
                 SetPlanePoints(0, plane0.bottomLeft, plane0.topLeft, plane0.topRight, plane0.bottomRight);
                 SetPlanePoints(8, plane1.bottomLeft, plane1.topLeft, plane1.topRight, plane1.bottomRight);
@@ -84,6 +83,5 @@ namespace E.Test
             linePoints[index + 6] = v3;
             linePoints[index + 7] = v0;
         }
-
     }
 }

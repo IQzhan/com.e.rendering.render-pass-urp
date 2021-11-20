@@ -3,8 +3,8 @@
     "rootNamespace": "E.Test",
     "references": [
         "E.Global.Runtime",
-        "E.Rendering.RenderPass.Runtime",
-        "Unity.RenderPipelines.Universal.Runtime"
+        "Unity.RenderPipelines.Universal.Runtime",
+        "E.Rendering.RenderPassURP.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

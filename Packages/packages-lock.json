@@ -1,21 +1,14 @@
 {
   "dependencies": {
-    "com.e.collections": {
-      "version": "git://github.com/IQzhan/Collections_Of_Unity_NativeArray.git#upm",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "e60d8b034639077b6f4b88ea89336bd0982bbab9"
-    },
     "com.e.global": {
-      "version": "git://github.com/IQzhan/com.e.global.git#v1.0.4",
+      "version": "git://github.com/IQzhan/com.e.global.git#v1.0.5",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "341383eab5c4f2099ca54e15b8dbd266bb65a1a1"
+      "hash": "4b4af9756f273a8ae1222b0eb156c8497721a3a5"
     },
-    "com.e.rendering.render-pass": {
-      "version": "file:com.e.rendering.render-pass",
+    "com.e.rendering.render-pass-urp": {
+      "version": "file:com.e.rendering.render-pass-urp",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

@@ -1,5 +1,5 @@
 {
-    "name": "E.Rendering.RenderPass.Editor",
+    "name": "E.Rendering.RenderPassURP.Editor",
     "rootNamespace": "E.Rendering.Editor",
     "references": [],
     "includePlatforms": [

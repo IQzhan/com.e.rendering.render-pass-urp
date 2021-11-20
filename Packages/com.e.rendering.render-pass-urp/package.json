@@ -1,8 +1,8 @@
 {
-  "name": "com.e.rendering.render-pass",
-  "displayName": "Render Pass",
+  "name": "com.e.rendering.render-pass-urp",
+  "displayName": "Render Pass For URP",
   "description": "Render pass for URP",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2020.3",
   "license": "MIT",
   "dependencies": {

@@ -42,6 +42,7 @@ public class CaptureMiniView : CustomRenderPassComponent
     {
         // CommandBuffer cmd = Command;
         // ScriptableRenderContext context = Context;
+        
     }
 
     public override void OnCameraCleanup()
