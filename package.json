@@ -1,0 +1,23 @@
+{
+  "name": "com.e.rendering.render-pass-urp",
+  "displayName": "Render Pass For URP",
+  "description": "Render pass for URP",
+  "version": "1.0.1",
+  "unity": "2020.3",
+  "license": "MIT",
+  "dependencies": {
+    "com.unity.render-pipelines.universal": "10.6.0"
+  },
+  "keywords": [
+    "render",
+    "pass",
+    "graphics",
+    "performance",
+    "rendering",
+    "pipeline"
+  ],
+  "author": {
+    "name": "ZhanQI"
+  },
+  "hideInEditor": false
+}
