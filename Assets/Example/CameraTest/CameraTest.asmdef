@@ -1,10 +1,11 @@
 {
-    "name": "TestBehaviours",
+    "name": "CameraTest",
     "rootNamespace": "E.Test",
     "references": [
         "E.Global.Runtime",
         "Unity.RenderPipelines.Universal.Runtime",
-        "E.Rendering.RenderPassURP.Runtime"
+        "E.Rendering.RenderPassURP.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
