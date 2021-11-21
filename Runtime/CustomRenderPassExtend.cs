@@ -5,9 +5,25 @@ namespace E.Rendering
 {
     public partial class CustomRenderPass
     {
+        private struct CameraData
+        {
+            public bool usePhysicalProperties;
+
+            public void Push(Camera camera)
+            {
+                usePhysicalProperties = camera.usePhysicalProperties;
+            }
+
+            public void Pop(Camera camera)
+            {
+                camera.usePhysicalProperties = usePhysicalProperties;
+            }
+        }
+
+        private CameraData m_CameraData;
+
         internal void SetCameraMatrices(in VirtualCamera virtualCamera)
         {
-            camera.aspect = virtualCamera.aspect;
             SetCameraMatrices(virtualCamera.worldToViewMatrix, virtualCamera.projectionMatrix, virtualCamera.cullingMatrix);
         }
 
@@ -19,22 +35,24 @@ namespace E.Rendering
 
         internal void SetCameraMatrices(in Matrix4x4 worldToViewMatrix, in Matrix4x4 projectionMatrix, in Matrix4x4 cullingMatrix)
         {
+            //Some properties might not be reset
+            m_CameraData.Push(camera);
             camera.worldToCameraMatrix = worldToViewMatrix;
             camera.projectionMatrix = projectionMatrix;
             camera.cullingMatrix = cullingMatrix;
             //SetViewProjectionMatrices is not compatible with URP?
             //https://docs.unity3d.com/2021.2/Documentation/ScriptReference/Rendering.CommandBuffer.SetViewProjectionMatrices.html
-            //command.SetViewProjectionMatrices(worldToViewMatrix, projectionMatrix);
-            command.SetViewMatrix(worldToViewMatrix);
-            command.SetProjectionMatrix(projectionMatrix);
+            command.SetViewProjectionMatrices(worldToViewMatrix, projectionMatrix);
+            //command.SetViewMatrix(worldToViewMatrix);
+            //command.SetProjectionMatrix(projectionMatrix);
         }
 
         internal void ResetCameraMatrices()
         {
-            camera.ResetAspect();
             camera.ResetCullingMatrix();
             camera.ResetProjectionMatrix();
             camera.ResetWorldToCameraMatrix();
+            m_CameraData.Pop(camera);
         }
 
         internal void SafeBlit(RenderTargetIdentifier sources, RenderTargetIdentifier destination,
