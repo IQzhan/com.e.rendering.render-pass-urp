@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace E.Rendering
+namespace E.Rendering.Universal
 {
     internal static class Utility
     {

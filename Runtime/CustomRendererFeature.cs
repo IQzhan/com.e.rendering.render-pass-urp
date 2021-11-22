@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace E.Rendering
+namespace E.Rendering.Universal
 {
     /// <summary>
     /// Beginning of this render-pass system.

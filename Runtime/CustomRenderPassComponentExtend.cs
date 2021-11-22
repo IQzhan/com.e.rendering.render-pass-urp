@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace E.Rendering
+namespace E.Rendering.Universal
 {
     public partial class CustomRenderPassComponent
     {

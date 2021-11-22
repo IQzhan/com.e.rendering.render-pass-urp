@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-namespace E.Rendering
+namespace E.Rendering.Universal
 {
     public abstract class CustomRenderPassComponentData : ScriptableObject
     {
