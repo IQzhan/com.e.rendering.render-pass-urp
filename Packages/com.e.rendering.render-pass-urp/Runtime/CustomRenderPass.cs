@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace E.Rendering
+namespace E.Rendering.Universal
 {
     /// <summary>
     /// A render-pass contains the same RenderPassEvent components.

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace E.Rendering
+namespace E.Rendering.Universal
 {
     /// <summary>
     /// Base class of render-pass component,
