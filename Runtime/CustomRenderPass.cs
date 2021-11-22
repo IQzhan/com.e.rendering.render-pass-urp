@@ -7,6 +7,9 @@ using UnityEngine.Rendering.Universal;
 
 namespace E.Rendering
 {
+    /// <summary>
+    /// A render-pass contains the same RenderPassEvent components.
+    /// </summary>
     public partial class CustomRenderPass : ScriptableRenderPass, IDisposable
     {
         private List<CustomRenderPassComponent> m_VolumeComponents;

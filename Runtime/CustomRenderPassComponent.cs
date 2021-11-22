@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 namespace E.Rendering
 {
     /// <summary>
-    /// Base class of render pass,
+    /// Base class of render-pass component,
     /// use VolumeComponentMenu attribute to configure menu in Volume Component like
     /// [VolumeComponentMenu("Custom/Volume Name")]
     /// </summary>
