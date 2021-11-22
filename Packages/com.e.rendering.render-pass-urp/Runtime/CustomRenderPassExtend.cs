@@ -22,11 +22,6 @@ namespace E.Rendering
 
         private CameraData m_CameraData;
 
-        internal void SetCameraMatrices(in VirtualCamera virtualCamera)
-        {
-            SetCameraMatrices(virtualCamera.worldToViewMatrix, virtualCamera.projectionMatrix, virtualCamera.cullingMatrix);
-        }
-
         internal void SetCameraMatrices(in Matrix4x4 worldToViewMatrix, in Matrix4x4 projectionMatrix)
         {
             Matrix4x4 cullingMatrix = projectionMatrix * worldToViewMatrix;
@@ -37,9 +32,11 @@ namespace E.Rendering
         {
             //Some properties might not be reset
             m_CameraData.Push(camera);
+            //For culling
             camera.worldToCameraMatrix = worldToViewMatrix;
             camera.projectionMatrix = projectionMatrix;
             camera.cullingMatrix = cullingMatrix;
+            //For graphic
             //SetViewProjectionMatrices is not compatible with URP?
             //https://docs.unity3d.com/2021.2/Documentation/ScriptReference/Rendering.CommandBuffer.SetViewProjectionMatrices.html
             command.SetViewProjectionMatrices(worldToViewMatrix, projectionMatrix);
@@ -53,6 +50,7 @@ namespace E.Rendering
             camera.ResetProjectionMatrix();
             camera.ResetWorldToCameraMatrix();
             m_CameraData.Pop(camera);
+            command.SetViewProjectionMatrices(camera.worldToCameraMatrix, camera.projectionMatrix);
         }
 
         internal void SafeBlit(RenderTargetIdentifier sources, RenderTargetIdentifier destination,

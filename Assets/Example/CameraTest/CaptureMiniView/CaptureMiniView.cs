@@ -65,19 +65,18 @@ namespace E.Test
                 }
             }
             if (m_CameraBehaviouor == null) return;
-            if (m_CameraBehaviouor.TryGetData(out Matrix4x4 worldToView, out Matrix4x4 proj, out Matrix4x4 culling))
+            if (m_CameraBehaviouor.TryGetVirtualCamera(out VirtualCamera virtualCamera))
             {
                 CommandBuffer cmd = Command;
                 ScriptableRenderContext context = Context;
                 RenderTextureDescriptor desc = renderingData.cameraData.cameraTargetDescriptor;
-                desc.depthBufferBits = 0;
+                //desc.depthBufferBits = 0;
                 desc.msaaSamples = 1;
                 cmd.GetTemporaryRT(tempRT.id, desc);
                 RenderTargetIdentifier tempID = tempRT.Identifier();
                 Blit(ColorTarget, tempID);
                 cmd.SetRenderTarget(tempID);
-                //TODO 
-                SetCameraMatrices(worldToView, proj, culling);
+                SetCameraMatrices(virtualCamera.worldToViewMatrix, virtualCamera.projectionMatrix, virtualCamera.cullingMatrix);
                 CurrentCamera.TryGetCullingParameters(out ScriptableCullingParameters cullingParameters);
                 CullingResults cullingResults = context.Cull(ref cullingParameters);
                 var sortFlags = renderingData.cameraData.defaultOpaqueSortFlags;
@@ -93,6 +92,7 @@ namespace E.Test
         public override void OnCameraCleanup()
         {
             // CommandBuffer cmd = Command;
+
         }
 
         protected override void DisposeUnmanaged()

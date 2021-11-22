@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8a6679de765282418dbd0ae494851c5, type: 3}
   m_Name: VirtualCameraBehaviouorData
   m_EditorClassIdentifier: 
-  position: {x: -7.92, y: 5.46, z: -1.04}
+  position: {x: -13.58, y: 9.71, z: -0.73}
   rotation: {x: 32.61, y: 90, z: 0}
   isOrthographic: 0
   size: 3.06
-  fov: 70
+  fov: 26.8
   aspect: 2.01
   near: 0.03
   far: 1000
   shiftX: 0
-  shiftY: 0.07
+  shiftY: 0
   showGizmos: 1

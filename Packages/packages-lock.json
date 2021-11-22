@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.e.global": {
-      "version": "git://github.com/IQzhan/com.e.global.git#v1.0.5",
+      "version": "git://github.com/IQzhan/com.e.global.git#v1.0.6",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "4b4af9756f273a8ae1222b0eb156c8497721a3a5"
+      "hash": "d23379cb5c7b0e8f1808f3a0afd5b35ff36049b8"
     },
     "com.e.rendering.render-pass-urp": {
       "version": "file:com.e.rendering.render-pass-urp",

@@ -6,16 +6,7 @@ namespace E.Rendering
     public partial class CustomRenderPassComponent
     {
         /// <summary>
-        /// Set matrices to current render camera
-        /// </summary>
-        /// <param name="virtualCamera"></param>
-        protected void SetCameraMatrices(in VirtualCamera virtualCamera)
-        {
-            Pass.SetCameraMatrices(virtualCamera);
-        }
-
-        /// <summary>
-        /// Set matrices to current render camera
+        /// Set matrices to current render camera.
         /// </summary>
         /// <param name="worldToViewMatrix"></param>
         /// <param name="projectionMatrix"></param>
@@ -25,7 +16,7 @@ namespace E.Rendering
         }
 
         /// <summary>
-        /// Set matrices to current render camera
+        /// Set matrices to current render camera.
         /// </summary>
         /// <param name="worldToViewMatrix"></param>
         /// <param name="projectionMatrix"></param>
@@ -36,7 +27,7 @@ namespace E.Rendering
         }
 
         /// <summary>
-        /// Reset camera matrix after use
+        /// Reset camera matrix after set.
         /// </summary>
         protected void ResetCameraMatrices()
         {
@@ -44,7 +35,7 @@ namespace E.Rendering
         }
 
         /// <summary>
-        /// Use this instead of ScriptableRenderContext.DrawRenderers
+        /// Use this instead of ScriptableRenderContext.DrawRenderers.
         /// </summary>
         /// <param name="cullingResults"></param>
         /// <param name="drawingSettings"></param>
@@ -56,7 +47,7 @@ namespace E.Rendering
 
         /// <summary>
         /// Use this instead of CommandBuffer.Blit
-        /// especially if source and destination are the same
+        /// especially if source and destination are the same.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="destination"></param>
@@ -68,7 +59,7 @@ namespace E.Rendering
         }
 
         /// <summary>
-        /// Use this instead of CommandBuffer.Blit
+        /// Use this instead of CommandBuffer.Blit.
         /// </summary>
         /// <param name="destination"></param>
         /// <param name="material"></param>

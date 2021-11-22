@@ -26,6 +26,12 @@ namespace E.Test
             SetData();
         }
 
+        public bool TryGetVirtualCamera(out VirtualCamera virtualCamera)
+        {
+            virtualCamera = this.virtualCamera;
+            return virtualCamera.IsCreated;
+        }
+
         private void SetData()
         {
             if (virtualCamera.IsCreated)
@@ -42,24 +48,6 @@ namespace E.Test
                 virtualCamera.shiftX = data.shiftX;
                 virtualCamera.shiftY = data.shiftY;
             }
-        }
-
-        public bool TryGetData(out Matrix4x4 worldToView, out Matrix4x4 proj, out Matrix4x4 culling)
-        {
-            if (virtualCamera.IsCreated)
-            {
-                worldToView = virtualCamera.worldToViewMatrix;
-                proj = virtualCamera.projectionMatrix;
-                culling = virtualCamera.cullingMatrix;
-                return true;
-            }
-            worldToView = proj = culling = default;
-            return false;
-        }
-
-        public void GetCameraPlane(int distance, out CameraClipPlane clipPlane)
-        {
-            clipPlane = virtualCamera.GetClipPlane(distance);
         }
 
         protected override void OnDisable()

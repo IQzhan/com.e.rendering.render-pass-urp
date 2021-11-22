@@ -5,8 +5,15 @@ using UnityEngine.Rendering.Universal;
 
 namespace E.Rendering
 {
+    /// <summary>
+    /// Beginning of this render-pass system.
+    /// <para>Add by click: ScriptableRendererData -> Add Renderer Feature -> CustomRendererFeature</para>
+    /// </summary>
     public class CustomRendererFeature : ScriptableRendererFeature
     {
+        /// <summary>
+        /// Should non-post-process render-pass component enabled in scene camera?
+        /// </summary>
         public bool nonPostProcessEnabledInSceneCamera = true;
 
         private List<CustomRenderPass> m_RenderPasses;
@@ -72,7 +79,8 @@ namespace E.Rendering
                 CustomRenderPass renderPass = m_RenderPasses[i];
                 if (renderPass.CheckActiveComponents(nonPostProcessEnabled, postProcessEnabled))
                 {
-                    if (renderPass.renderPassEvent == RenderPassEvent.AfterRendering)
+                    if (postProcessEnabled &&
+                        renderPass.renderPassEvent == RenderPassEvent.AfterRendering)
                     { colorTarget = m_AfterPostProcessTexture; }
                     renderPass.Setup(colorTarget, m_TempColorTarget);
                     renderer.EnqueuePass(renderPass);
