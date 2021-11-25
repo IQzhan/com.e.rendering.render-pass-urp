@@ -5,6 +5,9 @@ namespace E.Rendering.Universal
 {
     public partial class CustomRenderPass
     {
+        /// <summary>
+        /// For reset camera.
+        /// </summary>
         private struct CameraData
         {
             public bool usePhysicalProperties;
@@ -30,7 +33,7 @@ namespace E.Rendering.Universal
 
         internal void SetCameraMatrices(in Matrix4x4 worldToViewMatrix, in Matrix4x4 projectionMatrix, in Matrix4x4 cullingMatrix)
         {
-            //Some properties might not be reset
+            //Some camera properties might not be reset
             m_CameraData.Push(camera);
             //For culling
             camera.worldToCameraMatrix = worldToViewMatrix;
