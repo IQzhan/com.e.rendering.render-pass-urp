@@ -1,7 +1,14 @@
 {
   "dependencies": {
-    "com.e.rendering.render-pass": {
-      "version": "file:com.e.rendering.render-pass",
+    "com.e.global": {
+      "version": "git://github.com/IQzhan/com.e.global.git#v1.0.6",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "d23379cb5c7b0e8f1808f3a0afd5b35ff36049b8"
+    },
+    "com.e.rendering.render-pass-urp": {
+      "version": "file:com.e.rendering.render-pass-urp",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
@@ -9,10 +16,13 @@
       }
     },
     "com.unity.collab-proxy": {
-      "version": "1.9.0",
+      "version": "1.13.5",
       "depth": 0,
       "source": "registry",
-      "dependencies": {},
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.0",
+        "com.unity.services.core": "1.0.1"
+      },
       "url": "https://packages.unity.cn"
     },
     "com.unity.ext.nunit": {
@@ -32,7 +42,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.11",
+      "version": "2.0.12",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -49,6 +59,13 @@
     },
     "com.unity.mathematics": {
       "version": "1.2.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.cn"
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "2.0.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -78,6 +95,15 @@
       "depth": 2,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.cn"
+    },
+    "com.unity.services.core": {
+      "version": "1.0.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.unitywebrequest": "1.0.0"
+      },
       "url": "https://packages.unity.cn"
     },
     "com.unity.shadergraph": {
@@ -126,7 +152,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.timeline": {
-      "version": "1.5.6",
+      "version": "1.5.7",
       "depth": 0,
       "source": "registry",
       "dependencies": {
