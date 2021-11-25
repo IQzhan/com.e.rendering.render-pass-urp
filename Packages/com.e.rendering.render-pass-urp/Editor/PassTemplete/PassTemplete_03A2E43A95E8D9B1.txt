@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using E.Rendering;
+using E.Rendering.Universal;
 
 #NAMESPACE_START#
 [VolumeComponentMenu("#COMPONENT_MENU_PATH#")]

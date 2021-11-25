@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using UnityEngine;
 
-namespace E.Rendering.Universal
+namespace E.Test
 {
     /// <summary>
     /// Calculate four vertex at virtual camera's clip plane.
