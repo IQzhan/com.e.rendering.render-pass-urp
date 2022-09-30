@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.e.global": {
-      "version": "git://github.com/IQzhan/com.e.global.git#v1.0.6",
+      "version": "https://github.com/IQzhan/com.e.global.git#v1.1.1",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "d23379cb5c7b0e8f1808f3a0afd5b35ff36049b8"
+      "hash": "6def70ca2fb13d4accc0b3e4ef5ba8cc1e68ff5e"
     },
     "com.e.rendering.render-pass-urp": {
       "version": "file:com.e.rendering.render-pass-urp",
@@ -15,12 +15,20 @@
         "com.unity.render-pipelines.universal": "10.6.0"
       }
     },
+    "com.unity.burst": {
+      "version": "1.6.4",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.mathematics": "1.2.1"
+      },
+      "url": "https://packages.unity.cn"
+    },
     "com.unity.collab-proxy": {
-      "version": "1.13.5",
+      "version": "1.15.13",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.nuget.newtonsoft-json": "2.0.0",
         "com.unity.services.core": "1.0.1"
       },
       "url": "https://packages.unity.cn"
@@ -33,7 +41,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.7",
+      "version": "3.0.12",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -42,7 +50,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.12",
+      "version": "2.0.14",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -51,47 +59,42 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.ide.vscode": {
-      "version": "1.2.4",
+      "version": "1.2.5",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.cn"
     },
     "com.unity.mathematics": {
-      "version": "1.2.1",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.cn"
-    },
-    "com.unity.nuget.newtonsoft-json": {
-      "version": "2.0.0",
+      "version": "1.2.5",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.cn"
     },
     "com.unity.render-pipelines.core": {
-      "version": "11.0.0",
+      "version": "12.1.6",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
         "com.unity.ugui": "1.0.0",
-        "com.unity.modules.physics": "1.0.0"
+        "com.unity.modules.physics": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0"
       }
     },
     "com.unity.render-pipelines.universal": {
-      "version": "11.0.0",
+      "version": "12.1.6",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.mathematics": "1.1.0",
-        "com.unity.render-pipelines.core": "11.0.0",
-        "com.unity.shadergraph": "11.0.0"
+        "com.unity.mathematics": "1.2.1",
+        "com.unity.burst": "1.5.0",
+        "com.unity.render-pipelines.core": "12.1.6",
+        "com.unity.shadergraph": "12.1.6"
       }
     },
     "com.unity.searcher": {
-      "version": "4.3.2",
+      "version": "4.9.1",
       "depth": 2,
       "source": "registry",
       "dependencies": {},
@@ -107,12 +110,12 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.shadergraph": {
-      "version": "11.0.0",
+      "version": "12.1.6",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
-        "com.unity.render-pipelines.core": "11.0.0",
-        "com.unity.searcher": "4.3.1"
+        "com.unity.render-pipelines.core": "12.1.6",
+        "com.unity.searcher": "4.9.1"
       }
     },
     "com.unity.sysroot": {
@@ -132,7 +135,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.test-framework": {
-      "version": "1.1.30",
+      "version": "1.1.31",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -152,7 +155,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.timeline": {
-      "version": "1.5.7",
+      "version": "1.6.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -183,17 +186,12 @@
       }
     },
     "com.unity.visualscripting": {
-      "version": "1.6.1",
+      "version": "1.7.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.ugui": "1.0.0",
-        "com.unity.modules.ai": "1.0.0",
-        "com.unity.modules.animation": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.particlesystem": "1.0.0",
-        "com.unity.modules.physics": "1.0.0",
-        "com.unity.modules.physics2d": "1.0.0"
+        "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.cn"
     },
