@@ -71,7 +71,6 @@ namespace E.Rendering.Universal
                     destination = currentTargetID = m_ColorTargetID;
                 }
             }
-            command.SetRenderTarget(destination);
             command.Blit(sources, destination, material, pass);
         }
 

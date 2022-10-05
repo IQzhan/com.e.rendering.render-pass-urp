@@ -8,7 +8,7 @@ namespace E.Test
     [AutoInstantiate]
     public class VirtualCameraBehaviouor : GlobalBehaviour
     {
-        protected override bool IsEnabled => true;
+        protected override bool IsActive => true;
 
         private VirtualCamera virtualCamera;
 
